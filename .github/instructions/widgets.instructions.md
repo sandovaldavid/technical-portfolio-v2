@@ -1,14 +1,15 @@
 # Widgets Layer Instructions
 
 ## Purpose
-Widgets are large, self-contained UI blocks that deliver complete use cases. They represent major page sections or complex UI components that combine multiple features and entities.
+Widgets are large, self-contained UI blocks that deliver complete user experiences by composing features and entities. They represent major page sections or complex UI components that solve complete use cases.
 
 ## What belongs here:
-- Large page sections (Header, Footer, Hero, About, Projects)
-- Complex UI blocks with multiple responsibilities
-- Components that combine features and entities
-- Self-contained functional blocks
-- Major user interface sections
+- Large page sections that combine multiple features (Header, Footer, Hero, About)
+- Complex UI blocks with complete user workflows
+- Compositions that integrate features and entities together
+- Self-contained functional blocks with clear boundaries
+- Major user interface sections that can work independently
+- Complete user experience blocks (e.g., contact section with form + info)
 
 ## Structure:
 ```
@@ -124,35 +125,74 @@ export type { HeaderProps } from './model/types';
 ```
 
 ## Widget Characteristics:
-1. **Self-contained**: Can work independently on any page
-2. **Feature-rich**: Combines multiple features and entities
-3. **Reusable**: Can be used across different pages
-4. **Complete**: Provides a complete user experience block
-5. **Composed**: Built from smaller features and entities
+1. **Compositional**: Built by combining features and entities, not implementing from scratch
+2. **Self-contained**: Can work independently and be dropped into any page
+3. **Complete**: Provides a full user experience block, not partial functionality
+4. **Reusable**: Can be used across different pages without modification
+5. **Feature-rich**: Combines multiple features and entities into cohesive experiences
+6. **Boundary-aware**: Has clear responsibilities and doesn't leak concerns to other widgets
 
 ## Examples of widgets for this portfolio:
-- **Header**: Navigation, theme toggle, language selector
-- **Hero**: Main introduction section with avatar and title
-- **About**: Personal information and skills section
-- **Experience**: Work history and timeline
-- **Projects**: Project showcase with filtering
-- **Skills**: Technical skills with categories
-- **Contact**: Contact form and social links
-- **Footer**: Site links and copyright information
+- **Header**: Navigation + theme toggle + language selector + logo
+- **Hero**: Introduction + avatar + social links + call-to-action
+- **About**: Personal info + skills display + downloadable resume
+- **Experience**: Work history timeline + experience details + technologies used
+- **Projects**: Project grid + filtering + pagination + project cards
+- **Contact**: Contact form + contact info + social media links + location
+- **Footer**: Site links + copyright + social media + newsletter signup
+- **Skills**: Skill categories + progress indicators + technology icons
 
 ## Best Practices:
-1. Keep widgets focused on a single major use case
-2. Make widgets configurable through props
-3. Compose widgets from features and entities
-4. Ensure widgets are responsive and accessible
-5. Provide clear public APIs through index files
-6. Handle internal state and logic within the widget
-7. Use proper TypeScript interfaces for props
+1. Keep widgets focused on a single major use case or page section
+2. Make widgets configurable through props but avoid over-configuration
+3. Compose widgets from features and entities rather than implementing logic
+4. Ensure widgets are responsive and accessible by default
+5. Provide clear public APIs through index files for easy consumption
+6. Handle widget-level state and coordination between features
+7. Use proper TypeScript interfaces for all props and data contracts
+8. Avoid business logic - delegate to features and entities
+9. Make widgets independent - they shouldn't depend on other widgets
+10. Document widget usage, props, and composition patterns
 
 ## What should NOT be widgets:
-- Simple UI components (use shared/ui)
-- Business logic only (use features or entities)
-- Utility functions (use shared/lib)
-- Single-purpose components (use features)
+- Simple UI components without complete use cases (use shared/ui)
+- Pure business logic without UI composition (use features or entities)
+- Single-purpose components without feature composition (use features)
+- Application-wide concerns like routing (use app layer)
+- Data fetching without UI presentation (use entities or features)
+- Utility functions without UI components (use shared/lib)
 
-Remember: Widgets are the main building blocks that pages compose to create complete user experiences.
+## Composition Pattern Example:
+```astro
+---
+// src/widgets/projects-section/ui/ProjectsSection.astro
+// Widget composes features and entities, doesn't implement them
+import { ProjectFilter } from '../../../features/project-filter';
+import { ProjectCard } from '../../../entities/project';
+import { SectionTitle } from '../../../shared/ui';
+import type { Project } from '../../../entities/project';
+
+interface Props {
+  projects: Project[];
+  showFilter?: boolean;
+  title?: string;
+}
+
+const { projects, showFilter = true, title = "My Projects" } = Astro.props;
+---
+
+<section class="projects-section">
+  <div class="projects-section__header">
+    <SectionTitle>{title}</SectionTitle>
+    {showFilter && <ProjectFilter />}
+  </div>
+  
+  <div class="projects-section__grid">
+    {projects.map(project => (
+      <ProjectCard key={project.id} project={project} />
+    ))}
+  </div>
+</section>
+```
+
+Remember: Widgets are the main building blocks that pages compose to create complete user experiences. They should focus on composition and coordination, not implementation.
