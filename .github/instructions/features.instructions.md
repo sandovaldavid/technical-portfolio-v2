@@ -48,8 +48,9 @@ src/features/
 ## Rules for this layer:
 - ✅ Can import from: entities, shared
 - ❌ Cannot import from: app, pages, widgets, other features
-- ✅ Should provide specific user value
-- ❌ Should not be overly complex or contain multiple features
+- ✅ Should provide specific user value and business functionality
+- ❌ Should not be overly complex or contain multiple unrelated features
+- ❌ Features cannot directly import from other features (layer independence rule)
 
 ## Feature Examples:
 
@@ -249,36 +250,50 @@ export type { ThemeType } from './model/types';
 ```
 
 ## Feature Characteristics:
-1. **User-focused**: Provides clear value to users
-2. **Reusable**: Can be used in multiple widgets/pages
-3. **Interactive**: Often involves user actions and state
-4. **Self-contained**: Has its own UI, logic, and state
-5. **Business-oriented**: Represents business capabilities
+1. **User-focused**: Provides clear value to users through specific actions or interactions
+2. **Reusable**: Can be used in multiple widgets/pages without modification
+3. **Interactive**: Often involves user actions, state management, and business logic
+4. **Self-contained**: Has its own UI, logic, state, and API interactions
+5. **Business-oriented**: Represents specific business capabilities or user workflows
+6. **Independent**: Does not depend on other features (follows FSD layer independence)
 
 ## Examples of features for this portfolio:
-- **Theme Toggle**: Switch between light/dark modes
-- **Language Select**: Change site language
-- **Contact Form**: Send messages via contact form
-- **Project Filter**: Filter projects by technology/type
-- **Scroll to Top**: Navigate to top of page
-- **Copy Email**: Copy email address to clipboard
-- **Share Project**: Share individual projects
-- **Download Resume**: Download CV/Resume file
+- **Theme Toggle**: Switch between light/dark modes with persistence
+- **Language Select**: Change site language and update URL/content accordingly
+- **Contact Form**: Complete contact form with validation, submission, and feedback
+- **Project Filter**: Filter and search projects by technology, category, or status
+- **Newsletter Signup**: Subscribe to newsletter with email validation
+- **Social Share**: Share portfolio content on social media platforms
+- **Copy to Clipboard**: Copy email address or other content to clipboard
+- **Download Resume**: Download CV/Resume file with analytics tracking
 
 ## Best Practices:
-1. Keep features focused on single user actions
-2. Make features configurable and reusable
-3. Handle all related state within the feature
-4. Provide clear error handling and feedback
-5. Use proper TypeScript interfaces
-6. Include proper accessibility features
-7. Test features across different browsers
-8. Document feature APIs clearly
+1. Keep features focused on single user actions or workflows
+2. Make features configurable and reusable across different contexts
+3. Handle all related state and side effects within the feature
+4. Provide clear error handling and user feedback
+5. Use proper TypeScript interfaces for all props and data
+6. Include proper accessibility attributes and keyboard navigation
+7. Test features across different browsers and devices
+8. Document feature APIs and usage examples clearly
+9. Follow the Public API pattern - export only what's needed
+10. Avoid direct feature-to-feature dependencies (use composition in widgets)
 
 ## What should NOT be features:
-- Simple UI components without logic (use shared/ui)
-- Data models only (use entities)
-- Utility functions (use shared/lib)
-- Complex widgets combining multiple features
+- Simple UI components without business logic (use shared/ui)
+- Pure data models without user interaction (use entities)
+- Utility functions without UI (use shared/lib)
+- Complex multi-feature combinations (use widgets)
+- Application-wide configurations (use app layer)
 
-Remember: Features should provide clear user value and be reusable across different parts of the application.
+## Public API Pattern:
+Each feature should export its public interface through an index.ts file:
+
+```typescript
+// src/features/theme-toggle/index.ts
+export { default as ThemeToggle } from './ui/ThemeToggle.astro';
+export type { Theme, ThemeConfig } from './model/types';
+export { themeStore, themeActions } from './model/store';
+```
+
+Remember: Features should provide clear user value, be completely independent from other features, and be reusable across different parts of the application. They are the building blocks that widgets compose to create complete user experiences.
