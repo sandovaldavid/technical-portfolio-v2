@@ -82,27 +82,37 @@ const handleClick = onClick || (() => {});
 
 ### Component Guidelines:
 
+## Component Guidelines:
+
 #### Props and TypeScript
 ```typescript
-// Always define proper interfaces
+// Always define proper interfaces with clear naming
 interface Props {
-  // Required props
+  // Required props - be explicit about what's needed
   title: string;
   data: DataType[];
   
-  // Optional props with defaults
-  variant?: 'primary' | 'secondary';
+  // Optional props with sensible defaults
+  variant?: 'primary' | 'secondary' | 'accent';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
+  loading?: boolean;
   
-  // Event handlers
+  // Event handlers with proper typing
   onClick?: (event: MouseEvent) => void;
   onSubmit?: (data: FormData) => Promise<void>;
+  onError?: (error: Error) => void;
   
-  // Slots and children
+  // HTML attributes and styling
   class?: string;
+  id?: string;
+  'data-testid'?: string;
   [key: string]: any; // For additional HTML attributes
 }
+
+// Use const assertions for better type inference
+const BUTTON_VARIANTS = ['primary', 'secondary', 'accent'] as const;
+type ButtonVariant = typeof BUTTON_VARIANTS[number];
 ```
 
 #### Responsive Design
@@ -337,14 +347,49 @@ const HeavyComponent = lazy(() => import('./HeavyComponent.astro'));
 ## Component Testing:
 
 ### Manual Testing Checklist
-- [ ] Component renders correctly in all supported browsers
-- [ ] Responsive design works on mobile, tablet, and desktop
-- [ ] Light and dark themes are properly supported
-- [ ] All interactive elements are accessible via keyboard
-- [ ] Screen readers can properly navigate the component
-- [ ] Component works with and without JavaScript
-- [ ] All prop variations render correctly
-- [ ] Error states are handled gracefully
+- [ ] Component renders correctly in all supported browsers (Chrome, Firefox, Safari, Edge)
+- [ ] Responsive design works properly on mobile (320px+), tablet (768px+), and desktop (1024px+)
+- [ ] Light and dark themes are properly supported with correct contrast ratios
+- [ ] All interactive elements are accessible via keyboard navigation (Tab, Enter, Space, Arrow keys)
+- [ ] Screen readers can properly navigate and announce all content
+- [ ] Component works gracefully with and without JavaScript enabled
+- [ ] All prop variations render correctly and handle edge cases
+- [ ] Error states are handled gracefully with proper user feedback
+- [ ] Loading states provide appropriate visual feedback
+- [ ] Component follows WCAG 2.1 AA accessibility guidelines
+
+### Automated Testing Patterns
+```typescript
+// Component unit test example
+import { render, screen, fireEvent } from '@testing-library/astro';
+import { Button } from './Button.astro';
+
+describe('Button Component', () => {
+  it('renders with correct variant styles', () => {
+    render(Button, { props: { variant: 'primary' } });
+    expect(screen.getByRole('button')).toHaveClass('btn--primary');
+  });
+  
+  it('handles click events properly', async () => {
+    const handleClick = vi.fn();
+    render(Button, { props: { onClick: handleClick } });
+    
+    await fireEvent.click(screen.getByRole('button'));
+    expect(handleClick).toHaveBeenCalledOnce();
+  });
+  
+  it('supports keyboard navigation', async () => {
+    render(Button, { props: { onClick: vi.fn() } });
+    const button = screen.getByRole('button');
+    
+    button.focus();
+    expect(button).toHaveFocus();
+    
+    await fireEvent.keyDown(button, { key: 'Enter' });
+    // Assert expected behavior
+  });
+});
+```
 
 ## Common Patterns:
 
