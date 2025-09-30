@@ -1,5 +1,8 @@
 ---
-import { defaultLang } from '../i18n/config';
+/**
+ * Root redirect page - Redirects to unified portfolio page
+ * Pages Layer - Simple redirect to unified multilingual page
+ */
 ---
 
 <!doctype html>
@@ -9,7 +12,7 @@ import { defaultLang } from '../i18n/config';
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Redirecting... | David Sandoval Portfolio</title>
 		<meta name="description" content="Redirecting to David Sandoval's portfolio..." />
-		<meta http-equiv="refresh" content={`1;url=/${defaultLang}/`} />
+		<meta http-equiv="refresh" content="0;url=/portfolio" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<style>
 			@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
@@ -99,10 +102,10 @@ import { defaultLang } from '../i18n/config';
 				}
 			}
 		</style>
-		<script is:inline define:vars={{ defaultLang }}>
+		<script is:inline>
 			// Immediate redirect via JavaScript for better UX
 			setTimeout(() => {
-				window.location.href = `/${defaultLang}/`;
+				window.location.href = '/portfolio';
 			}, 100);
 		</script>
 	</head>
@@ -111,7 +114,7 @@ import { defaultLang } from '../i18n/config';
 			<div class="logo">DS</div>
 			<div class="message">Redirecting to portfolio...</div>
 			<div class="spinner"></div>
-			<a href={`/${defaultLang}/`} class="redirect-link"
+			<a href="/portfolio" class="redirect-link"
 				>Click here if not redirected automatically</a
 			>
 		</div>

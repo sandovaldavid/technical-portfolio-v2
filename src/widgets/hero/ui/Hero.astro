@@ -1,0 +1,189 @@
+---
+/**
+ * Hero Widget - UI Component
+ * Widgets Layer - Main hero section composition
+ * Composes: User entity + Contact features for hero presentation
+ */
+
+import MailIcon from '@assets/icons/Mail.astro';
+import LinkedInIcon from '@assets/icons/LinkedIn.astro';
+import GitHubIcon from '@assets/icons/GitHub.astro';
+import SocialPill from '@shared/ui/components/SocialPill.astro';
+import { userI18n, userData } from '@entities/user';
+import { detectLanguageFromUrl } from '@shared/lib/i18n';
+import type { HeroProps } from '../model/types';
+
+interface Props extends HeroProps {}
+
+const { class: className = '', id } = Astro.props;
+
+// Get translations using user entity
+const url = new URL(Astro.request.url);
+const { language } = detectLanguageFromUrl(url);
+const userTranslations = userI18n[language];
+
+// Social links with icons
+const socialLinks = [
+	{
+		href: userData.social.email,
+		icon: MailIcon,
+		label: 'Email',
+	},
+	{
+		href: userData.social.linkedin,
+		icon: LinkedInIcon,
+		label: 'LinkedIn',
+	},
+	{
+		href: userData.social.github,
+		icon: GitHubIcon,
+		label: 'GitHub',
+	},
+];
+---
+
+<section class={`hero max-w-3xl ${className}`} {id}>
+	<div class="hero__content flex gap-4 mb-4 items-center">
+		<img
+			class="hero__avatar rounded-full shadow-lg size-24 object-cover"
+			src={userData.personal.avatar}
+			alt={userData.personal.name}
+			loading="eager"
+		/>
+
+		<div class="hero__text">
+			<h1
+				class="hero__title text-4xl font-bold tracking-tight text-gray-800 sm:text-5xl dark:text-white"
+			>
+				{userTranslations.intro}
+			</h1>
+		</div>
+	</div>
+
+	<div class="hero__description">
+		<p
+			class="hero__bio mt-6 text-xl text-gray-800 dark:[&>strong]:text-yellow-200 [&>strong]:text-yellow-500 [&>strong]:font-semibold dark:text-gray-300"
+			set:html={userTranslations.description}
+		/>
+	</div>
+
+	<nav class="hero__social flex flex-wrap gap-4 mt-8" aria-label="Social media links">
+		{
+			socialLinks.map((link) => {
+				const IconComponent = link.icon;
+				return (
+					<SocialPill href={link.href} aria-label={link.label}>
+						<IconComponent class="size-4 md:size-6" />
+						{link.label}
+					</SocialPill>
+				);
+			})
+		}
+	</nav>
+</section>
+
+<style>
+	.hero {
+		animation: hero-appear 0.8s ease-out;
+	}
+
+	.hero__avatar {
+		animation: avatar-float 3s ease-in-out infinite;
+	}
+
+	.hero__name {
+		background: linear-gradient(45deg, #3b82f6, #06b6d4);
+		background-clip: text;
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		animation: gradient-shift 3s ease-in-out infinite alternate;
+	}
+
+	.hero__social {
+		animation: social-slide-up 0.8s ease-out 0.3s both;
+	}
+
+	@keyframes hero-appear {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes avatar-float {
+		0%,
+		100% {
+			transform: translateY(0px);
+		}
+		50% {
+			transform: translateY(-10px);
+		}
+	}
+
+	@keyframes gradient-shift {
+		0% {
+			background-position: 0% 50%;
+		}
+		100% {
+			background-position: 100% 50%;
+		}
+	}
+
+	@keyframes social-slide-up {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	/* Responsive adjustments */
+	@media (max-width: 640px) {
+		.hero__content {
+			flex-direction: column;
+			text-align: center;
+			gap: 1rem;
+		}
+
+		.hero__title {
+			font-size: 2rem;
+		}
+
+		.hero__bio {
+			font-size: 1.125rem;
+		}
+
+		.hero__social {
+			justify-content: center;
+		}
+	}
+
+	/* Dark mode enhancements */
+	:global(.dark) .hero__avatar {
+		box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+	}
+
+	/* Accessibility improvements */
+	@media (prefers-reduced-motion: reduce) {
+		.hero,
+		.hero__avatar,
+		.hero__name,
+		.hero__social {
+			animation: none;
+		}
+	}
+
+	/* Focus styles for accessibility */
+	.hero__social a:focus {
+		outline: 2px solid #3b82f6;
+		outline-offset: 2px;
+		border-radius: 4px;
+	}
+</style>

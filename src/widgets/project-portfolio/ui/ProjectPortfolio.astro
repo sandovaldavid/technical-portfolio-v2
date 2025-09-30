@@ -1,0 +1,88 @@
+---
+/**
+ * Project Portfolio Widget - UI Component
+ * Widgets Layer - Project portfolio display
+ */
+
+// FSD Imports
+import { getProjectData } from '@entities/project';
+import { getTechnologyConfig } from '@entities/technology';
+import { useProjectPortfolioTranslations } from '../lib/translations';
+import TitleSection from '@shared/ui/components/TitleSection.astro';
+import LinkButton from '@shared/ui/components/LinkButton.astro';
+import Badge from '@shared/ui/components/Badge.astro';
+
+// External imports
+import { Image } from 'astro:assets';
+
+// Icons
+import GitHubIcon from '@assets/icons/GitHub.astro';
+import LinkIcon from '@assets/icons/Link.astro';
+import CodeIcon from '@assets/icons/Code.astro';
+
+// Get current language using FSD architecture and translations
+const { language: lang, t } = useProjectPortfolioTranslations(new URL(Astro.request.url));
+const projectData = getProjectData(lang);
+---
+
+<TitleSection>
+	<CodeIcon class="size-8" />
+	{t('sectionTitle')}
+</TitleSection>
+
+<div class="flex flex-col gap-y-16">
+	{
+		projectData.all.map(({ image, title, description, tags, link, github }) => (
+			<article class="flex flex-col space-x-0 space-y-8 group md:flex-row md:space-x-8 md:space-y-0">
+				<div class="w-full md:w-1/2">
+					<div class="relative flex flex-col items-center col-span-6 row-span-5 gap-8 transition duration-500 ease-in-out transform shadow-xl overflow-clip rounded-xl sm:rounded-xl md:group-hover:-translate-y-1 md:group-hover:shadow-2xl lg:border lg:border-gray-800 lg:hover:border-gray-700 lg:hover:bg-gray-800/50">
+						<Image
+							alt={`${title} ${t('projectAlt')}`}
+							class="object-cover object-top w-full h-56 transition duration-500 sm:h-full md:scale-110 md:group-hover:scale-105"
+							loading="lazy"
+							src={image}
+							width={800}
+							height={450}
+						/>
+					</div>
+				</div>
+
+				<div class="w-full md:w-1/2 md:max-w-lg">
+					<h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{title}</h3>
+					<div class="flex flex-wrap mt-2">
+						<ul class="flex flex-row mb-2 gap-x-2">
+							{tags.map(tag => {
+								const techConfig = getTechnologyConfig(tag);
+								const TagIcon = techConfig.icon;
+								return (
+									<li>
+										<Badge class={techConfig.class}>
+											<TagIcon class="size-4" />
+											{techConfig.name}
+										</Badge>
+									</li>
+								);
+							})}
+						</ul>
+
+						<div class="mt-2 text-gray-700 dark:text-gray-400">{description}</div>
+						<footer class="flex items-end justify-start mt-4 gap-x-4">
+							{github && (
+								<LinkButton href={github}>
+									<GitHubIcon class="size-6" />
+									{t('codeButton')}
+								</LinkButton>
+							)}
+							{link && (
+								<LinkButton href={link}>
+									<LinkIcon class="size-4" />
+									{t('previewButton')}
+								</LinkButton>
+							)}
+						</footer>
+					</div>
+				</div>
+			</article>
+		))
+	}
+</div>

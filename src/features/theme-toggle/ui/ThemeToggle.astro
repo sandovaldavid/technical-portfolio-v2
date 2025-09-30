@@ -1,0 +1,130 @@
+---
+/**
+ * Theme Toggle Feature - UI Component
+ * Features Layer - Theme switching functionality with i18n support
+ */
+
+import SunIcon from '../../../assets/icons/Sun.astro';
+import MoonIcon from '../../../assets/icons/Moon.astro';
+import SystemIcon from '../../../assets/icons/System.astro';
+import { useFeatureTranslations } from '../../../shared/lib/i18n';
+import { themeToggleI18n } from '../i18n';
+import type { ThemeToggleProps } from '../model/types';
+
+interface Props extends ThemeToggleProps {}
+
+const { class: className = '', id } = Astro.props;
+
+const { t } = useFeatureTranslations(new URL(Astro.request.url), themeToggleI18n);
+
+const THEMES = [
+	{ id: 'light', name: t('light') },
+	{ id: 'dark', name: t('dark') },
+	{ id: 'system', name: t('system') },
+];
+---
+
+<div class={`theme-toggle relative ml-1 mr-1 ${className}`} {id}>
+	<button
+		class="theme-toggle-btn relative appearance-none border-none size-6 flex justify-center hover:scale-110 transition"
+		aria-label={t('select')}
+	>
+		<span class="sr-only">{t('select')}</span>
+		<SunIcon data-icon="light" class="theme-icon absolute top-0 size-6 transition-all" />
+		<MoonIcon data-icon="dark" class="theme-icon hidden absolute top-0 size-6 transition-all" />
+		<SystemIcon
+			data-icon="system"
+			class="theme-icon hidden absolute top-0 size-6 transition-all"
+		/>
+	</button>
+
+	<div
+		class="themes-menu absolute hidden w-20 scale-80 top-8 -left-1/2 sm:right-6 text-sm p-1 rounded-md
+           border border-gray-100 bg-white/90 dark:bg-gray-900/90 dark:border-gray-500/20
+           shadow-slate-500 backdrop-blur-md"
+	>
+		<ul>
+			{
+				THEMES.map(theme => (
+					<li
+						data-theme={theme.id}
+						class="themes-menu-option px-2 py-1.5 cursor-pointer hover:bg-neutral-400/40
+                   dark:hover:bg-gray-500/50 rounded-sm"
+					>
+						{theme.name}
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</div>
+
+<script>
+	// Theme Toggle functionality
+	document.querySelectorAll<HTMLElement>('.theme-toggle').forEach(root => {
+		const btn = root.querySelector<HTMLButtonElement>('.theme-toggle-btn');
+		const menu = root.querySelector<HTMLDivElement>('.themes-menu');
+		const opts = root.querySelectorAll<HTMLLIElement>('.themes-menu-option');
+		const icons = {
+			light: root.querySelector<HTMLElement>('[data-icon="light"]'),
+			dark: root.querySelector<HTMLElement>('[data-icon="dark"]'),
+			system: root.querySelector<HTMLElement>('[data-icon="system"]'),
+		};
+
+		if (!btn || !menu || !icons.light || !icons.dark || !icons.system) {
+			console.error('Required elements not found in theme toggle');
+			return;
+		}
+
+		// Apply theme and update icons
+		const applyTheme = (theme: string) => {
+			const isDark =
+				theme === 'dark' ||
+				(theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+			document.documentElement.classList.toggle('dark', isDark);
+			icons.light!.style.display = theme === 'light' ? 'block' : 'none';
+			icons.dark!.style.display = theme === 'dark' ? 'block' : 'none';
+			icons.system!.style.display = theme === 'system' ? 'block' : 'none';
+		};
+
+		// Load saved theme (or system by default)
+		const saved = localStorage.getItem('theme') || 'system';
+		applyTheme(saved);
+
+		// If system changes and user left on "system"
+		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+			if ((localStorage.getItem('theme') || 'system') === 'system') {
+				applyTheme('system');
+			}
+		});
+
+		// Toggle menu
+		const toggleMenu = (e: Event) => {
+			e.stopPropagation();
+			e.preventDefault();
+			menu!.classList.toggle('hidden');
+		};
+		btn.addEventListener('click', toggleMenu);
+		btn.addEventListener('touchend', toggleMenu);
+
+		// Close when clicking outside
+		document.addEventListener('click', (e: MouseEvent) => {
+			const target = e.target as Node;
+			if (!menu!.classList.contains('hidden') && !root.contains(target)) {
+				menu!.classList.add('hidden');
+			}
+		});
+
+		// Theme selection
+		opts.forEach(opt => {
+			opt.addEventListener('click', () => {
+				const theme = opt.getAttribute('data-theme');
+				if (!theme) return;
+				localStorage.setItem('theme', theme);
+				applyTheme(theme);
+				menu!.classList.add('hidden');
+			});
+		});
+	});
+</script>

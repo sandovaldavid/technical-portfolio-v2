@@ -1,0 +1,110 @@
+---
+/**
+ * Language Select Feature - UI Component
+ * Features Layer - Language switching functionality with i18n support
+ */
+
+import { useFeatureTranslations } from '../../../shared/lib/i18n';
+import { languageSelectI18n } from '../i18n';
+import { I18N_CONFIG } from '../../../app/config/i18n';
+import type { LanguageSelectProps, LanguageOption } from '../model/types';
+
+interface Props extends LanguageSelectProps {}
+
+const { class: className = '', id, showLabels = false } = Astro.props;
+
+const { currentLanguage, t } = useFeatureTranslations(
+	new URL(Astro.request.url),
+	languageSelectI18n
+);
+
+const LANGUAGE_OPTIONS: LanguageOption[] = [
+	{ code: 'es', name: t('spanish'), flag: '🇪🇸' },
+	{ code: 'en', name: t('english'), flag: '🇺🇸' },
+];
+
+// Get the current path and create alternative paths
+const url = new URL(Astro.request.url);
+const pathname = url.pathname;
+
+const createLanguagePath = (targetLang: string) => {
+	// If we're on the default language (es), the path doesn't include /es/
+	if (
+		currentLanguage === I18N_CONFIG.defaultLanguage &&
+		targetLang !== I18N_CONFIG.defaultLanguage
+	) {
+		// Going from /path to /en/path
+		return `/${targetLang}${pathname}`;
+	} else if (
+		currentLanguage !== I18N_CONFIG.defaultLanguage &&
+		targetLang === I18N_CONFIG.defaultLanguage
+	) {
+		// Going from /en/path to /path
+		return pathname.replace(/^\/[a-z]{2}/, '');
+	} else if (
+		currentLanguage !== I18N_CONFIG.defaultLanguage &&
+		targetLang !== I18N_CONFIG.defaultLanguage
+	) {
+		// Going from /en/path to /fr/path (if we had more languages)
+		return pathname.replace(/^\/[a-z]{2}/, `/${targetLang}`);
+	}
+	// Same language, return current path
+	return pathname;
+};
+---
+
+<div
+	class={`language-select flex items-center space-x-1 border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden ${className}`}
+	{id}
+>
+	{
+		LANGUAGE_OPTIONS.map(option => {
+			const isActive = currentLanguage === option.code;
+			const path = isActive ? '#' : createLanguagePath(option.code);
+
+			return (
+				<a
+					href={path}
+					class={`language-option px-2 py-1 text-sm font-medium transition-colors flex items-center gap-1 ${
+						isActive
+							? 'bg-blue-500 text-white'
+							: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+					}`}
+					aria-current={isActive ? 'page' : undefined}
+					aria-label={`${t('select')} ${option.name}`}
+					data-language={option.code}
+				>
+					<span class="language-flag">{option.flag}</span>
+					{showLabels ? (
+						<span class="language-label">{option.name}</span>
+					) : (
+						<span class="language-code">{option.code.toUpperCase()}</span>
+					)}
+					{isActive && <span class="sr-only">({t('currentLanguage')})</span>}
+				</a>
+			);
+		})
+	}
+</div>
+
+<script>
+	// Language select functionality
+	document.querySelectorAll<HTMLElement>('.language-select').forEach(root => {
+		const options = root.querySelectorAll<HTMLAnchorElement>('.language-option');
+
+		options.forEach(option => {
+			option.addEventListener('click', e => {
+				const target = e.currentTarget as HTMLAnchorElement;
+				const language = target.dataset.language;
+
+				if (language && target.href !== '#') {
+					// Store language preference
+					localStorage.setItem('preferredLanguage', language);
+
+					// Navigate to the new language
+					window.location.href = target.href;
+				}
+			});
+		});
+	});
+</script>

@@ -1,0 +1,276 @@
+---
+/**
+ * Header Widget - UI Component
+ * Widgets Layer - Navigation header with theme toggle and language select
+ * Composes: Navigation entity + Theme Toggle feature + Language Select feature
+ */
+
+import { ThemeToggle } from '@features/theme-toggle';
+import { DynamicLanguageSelect } from '@features/dynamic-language';
+import MenuIcon from '@assets/icons/MenuIcon.astro';
+import { useHeaderTranslations, createNavigationItems } from '../lib/translations';
+import type { HeaderProps } from '../model/types';
+
+interface Props extends HeaderProps {}
+
+const { class: className = '', id } = Astro.props;
+
+const { currentLanguage, t } = useHeaderTranslations(new URL(Astro.request.url));
+const navItems = createNavigationItems(t, currentLanguage);
+---
+
+<header
+	class={`header fixed top-0 z-10 flex items-center justify-center w-full mx-auto mt-2 ${className}`}
+	{id}
+>
+	<!-- Desktop/Tablet Navigation -->
+	<nav
+		class="header__nav-desktop hidden sm:flex px-3 text-sm font-medium rounded-full text-gray-600 dark:text-gray-200 justify-center items-center"
+	>
+		{
+			navItems.map(link => (
+				<a
+					class="header__nav-link relative block px-2 py-2 transition hover:text-blue-500 dark:hover:text-blue-500"
+					aria-label={link.label}
+					href={link.url}
+					data-section={link.label}
+				>
+					{link.title}
+				</a>
+			))
+		}
+		<div class="header__actions flex items-center gap-2 ml-2">
+			<ThemeToggle />
+			<DynamicLanguageSelect />
+		</div>
+	</nav>
+
+	<!-- Mobile Navigation -->
+	<nav
+		class="header__nav-mobile flex w-11/12 items-center justify-between px-3 sm:hidden rounded-md"
+	>
+		<div class="header__mobile-actions">
+			<ThemeToggle />
+		</div>
+		<button
+			id="mobile-menu-btn"
+			class="header__menu-btn p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+			aria-label="Open navigation menu"
+		>
+			<MenuIcon class="size-7" />
+		</button>
+	</nav>
+
+	<!-- Mobile Menu Overlay -->
+	<div
+		id="mobile-menu"
+		class="header__mobile-menu fixed top-0 left-0 w-full h-full bg-white dark:bg-gray-900 bg-opacity-95 dark:bg-opacity-95 z-10 flex-col items-center justify-center gap-6 text-lg font-medium text-gray-800 dark:text-gray-100 hidden transition-all"
+	>
+		{
+			navItems.map(link => (
+				<a
+					class="header__mobile-link block px-4 py-3 rounded hover:bg-blue-100 dark:hover:bg-gray-700 transition"
+					aria-label={link.label}
+					href={link.url}
+					data-mobile-link
+				>
+					{link.title}
+				</a>
+			))
+		}
+
+		<div class="header__mobile-language flex justify-center items-center gap-4">
+			<DynamicLanguageSelect showLabels={true} />
+		</div>
+
+		<button
+			id="mobile-menu-close"
+			class="header__close-btn absolute top-4 right-4 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+			aria-label="Close navigation menu"
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				class="size-7"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke="currentColor"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M6 18L18 6M6 6l12 12"></path>
+			</svg>
+		</button>
+	</div>
+</header>
+
+<script>
+	// Header widget functionality
+	class HeaderWidget {
+		private sections: NodeListOf<HTMLElement>;
+		private navLinks: NodeListOf<HTMLAnchorElement>;
+		private mobileMenuBtn: HTMLButtonElement | null;
+		private mobileMenu: HTMLDivElement | null;
+		private mobileMenuClose: HTMLButtonElement | null;
+		private observer: IntersectionObserver | null = null;
+
+		constructor() {
+			this.sections = document.querySelectorAll('section');
+			this.navLinks = document.querySelectorAll('.header__nav-link');
+			this.mobileMenuBtn = document.getElementById('mobile-menu-btn') as HTMLButtonElement;
+			this.mobileMenu = document.getElementById('mobile-menu') as HTMLDivElement;
+			this.mobileMenuClose = document.getElementById(
+				'mobile-menu-close'
+			) as HTMLButtonElement;
+
+			this.initNavHighlight();
+			this.initMobileMenu();
+		}
+
+		private initNavHighlight() {
+			if (this.sections.length === 0 || this.navLinks.length === 0) return;
+
+			const callback = (entries: IntersectionObserverEntry[]) => {
+				entries.forEach((entry: IntersectionObserverEntry) => {
+					if (entry.isIntersecting) {
+						this.navLinks.forEach(link => {
+							const sectionId = link.dataset.section;
+							if (sectionId === entry.target.id) {
+								link.classList.add('text-blue-500');
+							} else {
+								link.classList.remove('text-blue-500');
+							}
+						});
+					}
+				});
+			};
+
+			this.observer = new IntersectionObserver(callback, {
+				root: null,
+				rootMargin: '0px',
+				threshold: 0.3,
+			});
+
+			this.sections.forEach(section => {
+				this.observer?.observe(section);
+			});
+
+			// Handle visibility change
+			document.addEventListener('visibilitychange', () => {
+				if (document.visibilityState === 'hidden') {
+					this.observer?.disconnect();
+				} else {
+					this.sections.forEach(section => {
+						this.observer?.observe(section);
+					});
+				}
+			});
+		}
+
+		private initMobileMenu() {
+			if (!this.mobileMenuBtn || !this.mobileMenu) return;
+
+			// Open mobile menu
+			this.mobileMenuBtn.addEventListener('click', e => {
+				e.stopPropagation();
+				this.openMobileMenu();
+			});
+
+			// Close mobile menu
+			this.mobileMenuClose?.addEventListener('click', e => {
+				e.stopPropagation();
+				this.closeMobileMenu();
+			});
+
+			// Close mobile menu when clicking on links
+			const mobileLinks = document.querySelectorAll('[data-mobile-link]');
+			mobileLinks.forEach(link => {
+				link.addEventListener('click', () => {
+					this.closeMobileMenu();
+				});
+			});
+
+			// Close menu when clicking outside
+			document.addEventListener('click', e => {
+				if (this.mobileMenu && !this.mobileMenu.classList.contains('hidden')) {
+					const target = e.target as Node;
+					if (
+						target instanceof Node &&
+						!this.mobileMenu.contains(target) &&
+						target !== this.mobileMenuBtn
+					) {
+						this.closeMobileMenu();
+					}
+				}
+			});
+
+			// Close menu on escape key
+			document.addEventListener('keydown', e => {
+				if (
+					e.key === 'Escape' &&
+					this.mobileMenu &&
+					!this.mobileMenu.classList.contains('hidden')
+				) {
+					this.closeMobileMenu();
+				}
+			});
+		}
+
+		private openMobileMenu() {
+			if (this.mobileMenu) {
+				this.mobileMenu.classList.remove('hidden');
+				this.mobileMenu.classList.add('flex');
+				document.body.style.overflow = 'hidden'; // Prevent scroll
+			}
+		}
+
+		private closeMobileMenu() {
+			if (this.mobileMenu) {
+				this.mobileMenu.classList.add('hidden');
+				this.mobileMenu.classList.remove('flex');
+				document.body.style.overflow = ''; // Restore scroll
+			}
+		}
+
+		public destroy() {
+			this.observer?.disconnect();
+		}
+	}
+
+	// Initialize header widget
+	document.addEventListener('DOMContentLoaded', () => {
+		new HeaderWidget();
+	});
+</script>
+
+<style>
+	.header__nav-desktop {
+		animation: nav-shadow 1s linear both;
+		animation-timeline: scroll();
+		animation-range: 0 100px;
+	}
+
+	@keyframes nav-shadow {
+		to {
+			background-color: rgb(255 255 255 / 0.8);
+			backdrop-filter: blur(10px);
+			border: 1px solid rgb(0 0 0 / 0.1);
+		}
+	}
+
+	/* Dark mode animation */
+	:global(.dark) .header__nav-desktop {
+		animation: nav-shadow-dark 1s linear both;
+		animation-timeline: scroll();
+		animation-range: 0 100px;
+	}
+
+	@keyframes nav-shadow-dark {
+		to {
+			background-color: rgb(17 24 39 / 0.8);
+			backdrop-filter: blur(10px);
+			border: 1px solid rgb(255 255 255 / 0.1);
+		}
+	}
+</style>

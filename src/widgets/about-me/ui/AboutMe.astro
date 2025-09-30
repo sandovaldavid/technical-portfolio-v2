@@ -1,0 +1,151 @@
+---
+/**
+ * About Me Widget - UI Component
+ * Widgets Layer - About me section with user profile information
+ */
+
+// FSD Imports
+import { userI18n, userData } from '../../../entities/user';
+import { detectLanguageFromUrl } from '../../../shared/lib/i18n';
+
+// Get translations using user entity
+const url = new URL(Astro.request.url);
+const { language } = detectLanguageFromUrl(url);
+const userTranslations = userI18n[language];
+---
+
+<article class="about-me flex flex-col md:flex-row gap-8 items-start">
+	<div class="about-me__content flex-1">
+		<div class="about-me__text space-y-4 text-gray-700 dark:text-gray-300">
+			<p set:html={userTranslations.aboutParagraph1} class="text-pretty leading-relaxed"></p>
+			<p set:html={userTranslations.aboutParagraph2} class="text-pretty leading-relaxed"></p>
+			<p set:html={userTranslations.aboutParagraph3} class="text-pretty leading-relaxed"></p>
+		</div>
+	</div>
+	
+	<aside class="about-me__aside">
+		<div class="about-me__profile bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+			<div class="about-me__avatar">
+				<img 
+					src={userData.personal.avatar}
+					alt={userData.personal.name}
+					class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-yellow-400"
+				/>
+			</div>
+			<div class="about-me__info text-center">
+				<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+					{userData.personal.name}
+				</h3>
+				<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+					{userData.personal.title}
+				</p>
+				<p class="text-xs text-gray-500 dark:text-gray-500">
+					📍 {userData.personal.location}
+				</p>
+			</div>
+		</div>
+	</aside>
+</article>
+
+<style>
+	.about-me {
+		animation: fade-in-up 0.8s ease-out;
+	}
+
+	.about-me__content {
+		animation: slide-in-left 0.6s ease-out;
+	}
+
+	.about-me__aside {
+		animation: slide-in-right 0.6s ease-out 0.2s both;
+	}
+
+	.about-me__profile {
+		transition: transform 0.3s ease, shadow 0.3s ease;
+	}
+
+	.about-me__profile:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	}
+
+	.about-me__avatar img {
+		transition: transform 0.3s ease;
+	}
+
+	.about-me__profile:hover .about-me__avatar img {
+		transform: scale(1.05);
+	}
+
+	@keyframes fade-in-up {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes slide-in-left {
+		from {
+			opacity: 0;
+			transform: translateX(-30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	@keyframes slide-in-right {
+		from {
+			opacity: 0;
+			transform: translateX(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	/* Responsive adjustments */
+	@media (max-width: 768px) {
+		.about-me {
+			flex-direction: column;
+		}
+		
+		.about-me__aside {
+			order: -1;
+			align-self: center;
+		}
+	}
+
+	/* Accessibility improvements */
+	@media (prefers-reduced-motion: reduce) {
+		.about-me,
+		.about-me__content,
+		.about-me__aside,
+		.about-me__profile,
+		.about-me__avatar img {
+			animation: none;
+			transition: none;
+		}
+		
+		.about-me__profile:hover {
+			transform: none;
+		}
+		
+		.about-me__profile:hover .about-me__avatar img {
+			transform: none;
+		}
+	}
+
+	/* Focus styles */
+	.about-me__profile:focus-within {
+		outline: 2px solid #3b82f6;
+		outline-offset: 2px;
+		border-radius: 12px;
+	}
+</style>

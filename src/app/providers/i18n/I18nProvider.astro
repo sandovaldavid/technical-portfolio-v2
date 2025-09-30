@@ -1,0 +1,89 @@
+---
+/**
+ * i18n Provider - Global language context
+ * App Layer - Application-wide i18n initialization
+ */
+
+import type { SupportedLanguage } from '../../types/i18n';
+import { detectLanguage } from '../../../shared/lib/i18n';
+import { I18N_CONFIG } from '../../config/i18n';
+
+interface Props {
+	language?: SupportedLanguage;
+}
+
+const { language } = Astro.props;
+
+// Detect language if not provided
+const currentLanguage = language || detectLanguage(new URL(Astro.request.url)).language;
+---
+
+<!-- 
+  Global i18n setup - This provider should wrap the entire application
+  It sets up language context and provides global language configuration
+-->
+<script
+	is:inline
+	define:vars={{
+		defaultLanguage: I18N_CONFIG.defaultLanguage,
+		supportedLanguages: I18N_CONFIG.supportedLanguages,
+		currentLanguage: currentLanguage,
+	}}
+>
+	// Make language available globally for client-side scripts
+	if (typeof window !== 'undefined') {
+		window.__LANGUAGE__ = currentLanguage;
+
+		// Dispatch language change event for client-side components
+		window.dispatchEvent(
+			new CustomEvent('languageChanged', {
+				detail: {
+					language: currentLanguage,
+					previousLanguage: window.__PREVIOUS_LANGUAGE__,
+				},
+			})
+		);
+
+		window.__PREVIOUS_LANGUAGE__ = currentLanguage;
+	}
+
+	// Set document language and direction
+	document.documentElement.lang = currentLanguage;
+
+	// Add language class for CSS targeting
+	document.documentElement.classList.add(`lang-${currentLanguage}`);
+
+	// Set meta tags for language
+	const existingLangMeta = document.querySelector('meta[http-equiv="content-language"]');
+	if (existingLangMeta) {
+		existingLangMeta.setAttribute('content', currentLanguage);
+	} else {
+		const langMeta = document.createElement('meta');
+		langMeta.setAttribute('http-equiv', 'content-language');
+		langMeta.setAttribute('content', currentLanguage);
+		document.head.appendChild(langMeta);
+	}
+</script>
+
+<!-- 
+  Render children with i18n context
+  All child components will have access to the language context
+-->
+<slot />
+
+<!-- Global styles for language-specific styling -->
+<style is:global>
+	/* Language-specific font adjustments */
+	html.lang-es {
+		/* Spanish-specific typography adjustments if needed */
+	}
+
+	html.lang-en {
+		/* English-specific typography adjustments if needed */
+	}
+
+	/* Language transition animations */
+	html.lang-transition * {
+		transition: all 0.2s ease-in-out;
+	}
+</style>

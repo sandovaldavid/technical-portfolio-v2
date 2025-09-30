@@ -1,0 +1,172 @@
+---
+/**
+ * Main Portfolio Page - Unified multilingual page
+ * Pages Layer - Single page with dynamic language switching
+ */
+
+import CodeIcon from '@assets/icons/Code.astro';
+import ProfileCheckIcon from '@assets/icons/ProfileCheck.astro';
+import StarIcon from '@assets/icons/Star.astro';
+import Layout from '../layouts/Layout.astro';
+import { ExperienceSection } from '@widgets/experience-section';
+import SectionContainer from '@shared/ui/components/SectionContainer.astro';
+import BriefCaseIcon from '@assets/icons/Briefcase.astro';
+import { ProjectPortfolio } from '@widgets/project-portfolio';
+import TitleSection from '@shared/ui/components/TitleSection.astro';
+import { AboutMe } from '@widgets/about-me';
+import { BadgesDisplay } from '@widgets/badges-display';
+import { Hero } from '@widgets/hero';
+import { I18nProvider } from '../app/providers/i18n';
+import { DynamicLanguageSelect } from '../features/dynamic-language';
+
+// Detect initial language for SSR
+import { detectLanguage } from '../shared/lib/i18n';
+
+const detectionResult = detectLanguage(new URL(Astro.request.url));
+const initialLanguage = detectionResult.language;
+
+// Set dynamic titles and descriptions based on language
+const pageContent = {
+	es: {
+		title: "David Sandoval Portfolio - Desarrollador Web",
+		description: "Contrata a David Sandoval, desarrollador web y mobile. Especializado en crear aplicaciones únicas.",
+		sections: {
+			badges: "Badges",
+			experience: "Experiencia laboral",
+			projects: "Proyectos",
+			about: "Sobre mí"
+		}
+	},
+	en: {
+		title: "David Sandoval Portfolio - Web Developer",
+		description: "Hire David Sandoval, web and mobile developer. Specialized in creating unique applications.",
+		sections: {
+			badges: "Badges",
+			experience: "Work Experience",
+			projects: "Projects",
+			about: "About me"
+		}
+	}
+};
+
+const content = pageContent[initialLanguage];
+---
+
+<I18nProvider language={initialLanguage}>
+	<Layout
+		title={content.title}
+		description={content.description}
+		img_preview="/projects/portfolio.webp"
+	>
+		<main class="px-4" data-i18n-page="portfolio">
+			<!-- Language selector in header area -->
+			<div class="fixed top-4 right-4 z-50">
+				<DynamicLanguageSelect 
+					class="shadow-lg"
+					initialLanguage={initialLanguage}
+					showLabels={false}
+					showFlags={true}
+				/>
+			</div>
+
+			<div class="py-16 md:py-26 min-h-screen flex flex-col justify-around">
+				<SectionContainer class="mb-4">
+					<Hero />
+				</SectionContainer>
+				<SectionContainer id="badges">
+					<TitleSection>
+						<StarIcon class="size-7" />
+						<span data-i18n="sections.badges" data-i18n-namespace="page">{content.sections.badges}</span>
+					</TitleSection>
+					<BadgesDisplay />
+				</SectionContainer>
+			</div>
+			<div class="space-y-24">
+				<SectionContainer id="experience">
+					<TitleSection>
+						<BriefCaseIcon class="size-8" />
+						<span data-i18n="sections.experience" data-i18n-namespace="page">{content.sections.experience}</span>
+					</TitleSection>
+					<ExperienceSection />
+				</SectionContainer>
+
+				<SectionContainer id="projects">
+					<TitleSection>
+						<CodeIcon class="size-7" />
+						<span data-i18n="sections.projects" data-i18n-namespace="page">{content.sections.projects}</span>
+					</TitleSection>
+					<ProjectPortfolio />
+				</SectionContainer>
+
+				<SectionContainer id="about-me">
+					<TitleSection>
+						<ProfileCheckIcon class="size-8" />
+						<span data-i18n="sections.about" data-i18n-namespace="page">{content.sections.about}</span>
+					</TitleSection>
+					<AboutMe />
+				</SectionContainer>
+			</div>
+		</main>
+
+		<!-- Initialize dynamic content switching -->
+		<script>
+			// Register page-level translations for dynamic switching
+			window.addEventListener('DOMContentLoaded', async () => {
+				try {
+					const { registerTranslationData, autoRegisterTranslatableElements } = await import('../features/dynamic-language/lib/contentSwitchingService.js');
+					
+					// Register page translations
+					const pageTranslations = {
+						es: {
+							sections: {
+								badges: "Badges",
+								experience: "Experiencia laboral", 
+								projects: "Proyectos",
+								about: "Sobre mí"
+							},
+							meta: {
+								title: "David Sandoval Portfolio - Desarrollador Web",
+								description: "Contrata a David Sandoval, desarrollador web y mobile. Especializado en crear aplicaciones únicas."
+							}
+						},
+						en: {
+							sections: {
+								badges: "Badges",
+								experience: "Work Experience",
+								projects: "Projects", 
+								about: "About me"
+							},
+							meta: {
+								title: "David Sandoval Portfolio - Web Developer",
+								description: "Hire David Sandoval, web and mobile developer. Specialized in creating unique applications."
+							}
+						}
+					};
+
+					registerTranslationData('page', pageTranslations);
+					
+					// Auto-register elements with data-i18n attributes
+					autoRegisterTranslatableElements();
+
+					// Listen for language changes to update meta tags
+					window.addEventListener('languageChanged', (event) => {
+						const customEvent = event as CustomEvent;
+						const { language } = customEvent.detail;
+						const meta = pageTranslations[language as keyof typeof pageTranslations]?.meta;
+						
+						if (meta) {
+							document.title = meta.title;
+							const metaDesc = document.querySelector('meta[name="description"]');
+							if (metaDesc) {
+								metaDesc.setAttribute('content', meta.description);
+							}
+						}
+					});
+
+				} catch (error) {
+					console.error('Failed to initialize page translations:', error);
+				}
+			});
+		</script>
+	</Layout>
+</I18nProvider>

@@ -1,0 +1,177 @@
+---
+/**
+ * Badges Display Widget - UI Component
+ * Widgets Layer - Badges and certifications display
+ */
+
+// FSD Imports
+import { getAvailableBadges } from '../../../entities/badge';
+import { useBadgesDisplayTranslations } from '../lib/translations';
+import TitleSection from '../../../shared/ui/components/TitleSection.astro';
+
+// External imports
+import { Image } from 'astro:assets';
+
+// Icons
+import StarIcon from '../../../assets/icons/Star.astro';
+
+// Get current language and badge data
+const { language: lang, t } = useBadgesDisplayTranslations(new URL(Astro.request.url));
+const badges = getAvailableBadges(lang);
+---
+
+<TitleSection>
+  <StarIcon class="size-8" />
+  {t('sectionTitle')}
+</TitleSection>
+
+<div class="badges-display">
+  {badges.length > 0 ? (
+    <ul class="flex flex-wrap gap-4 justify-center md:justify-start">
+      {badges.map((badge) => (
+        <li class="badge-item">
+          <article class="badge-card group">
+            <div class="badge-image-container relative overflow-hidden rounded-lg shadow-md transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
+              <Image
+                src={badge.image}
+                alt={`${badge.name} - ${badge.issuer}`}
+                width={150}
+                height={150}
+                loading="lazy"
+                decoding="async"
+                class="badge-image w-full h-auto object-cover"
+              />
+              
+              {/* Overlay on hover */}
+              <div class="badge-overlay absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span class="badge-overlay-text text-white text-sm font-medium px-3 py-1 bg-black/50 rounded-full">
+                  {t('viewBadge')}
+                </span>
+              </div>
+            </div>
+            
+            <div class="badge-content mt-3 text-center">
+              <h3 class="badge-title text-sm font-medium text-gray-800 dark:text-gray-200 leading-tight">
+                {badge.name}
+              </h3>
+              {badge.issuer && (
+                <p class="badge-issuer text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {badge.issuer}
+                </p>
+              )}
+              {badge.date && (
+                <p class="badge-date text-xs text-gray-400 dark:text-gray-500">
+                  {badge.date}
+                </p>
+              )}
+            </div>
+          </article>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <div class="badges-empty text-center py-8">
+      <p class="text-gray-500 dark:text-gray-400">
+        {t('noBadges')}
+      </p>
+    </div>
+  )}
+</div>
+
+<style>
+  .badges-display {
+    animation: fade-in 0.6s ease-out;
+  }
+
+  .badge-item {
+    animation: slide-up 0.5s ease-out;
+    animation-fill-mode: both;
+  }
+
+  .badge-item:nth-child(1) { animation-delay: 0.1s; }
+  .badge-item:nth-child(2) { animation-delay: 0.2s; }
+  .badge-item:nth-child(3) { animation-delay: 0.3s; }
+  .badge-item:nth-child(4) { animation-delay: 0.4s; }
+
+  .badge-card {
+    max-width: 150px;
+    cursor: pointer;
+  }
+
+  .badge-image {
+    transition: transform 0.3s ease;
+  }
+
+  .badge-card:hover .badge-image {
+    transform: scale(1.05);
+  }
+
+  .badge-title {
+    transition: color 0.3s ease;
+  }
+
+  .badge-card:hover .badge-title {
+    color: #3b82f6;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .badge-card {
+      max-width: 120px;
+    }
+
+    .badge-title {
+      font-size: 0.75rem;
+    }
+  }
+
+  /* Accessibility improvements */
+  @media (prefers-reduced-motion: reduce) {
+    .badges-display,
+    .badge-item,
+    .badge-image,
+    .badge-title {
+      animation: none;
+      transition: none;
+    }
+  }
+
+  /* Focus styles for accessibility */
+  .badge-card:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+
+  /* Dark mode enhancements */
+  :global(.dark) .badge-image-container {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  :global(.dark) .badge-card:hover .badge-image-container {
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+  }
+</style>

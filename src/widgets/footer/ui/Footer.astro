@@ -1,0 +1,282 @@
+---
+/**
+ * Footer Widget - UI Component
+ * Widgets Layer - Footer section with navigation and contact
+ */
+
+// FSD Imports - Using proper Public APIs
+import { navigationData } from '@entities/navigation';
+import { userData } from '@entities/user';
+import { userI18n } from '@entities/user';
+import { useFooterTranslations } from '../lib/useFooterTranslations';
+import SocialPill from '@shared/ui/components/SocialPill.astro';
+
+// External imports  
+import { getCurrentYear } from '@shared/lib/utils/date';
+import { detectLanguageFromUrl } from '@shared/lib/i18n';
+
+// Icons
+import GitHubIcon from '@assets/icons/GitHub.astro';
+import LinkedInIcon from '@assets/icons/LinkedIn.astro';
+import MailIcon from '@assets/icons/Mail.astro';
+import AstroIcon from '@assets/icons/AstroIcon.astro';
+import TailwindIcon from '@assets/icons/Tailwind.astro';
+
+// Get translations using new FSD i18n system
+const url = new URL(Astro.request.url);
+const footerTranslations = useFooterTranslations(url);
+const { language } = detectLanguageFromUrl(url);
+const userTranslations = userI18n[language];
+
+// Get current year for copyright
+const currentYear = getCurrentYear();
+
+// Navigation sections data from entity
+const FOOTER_SECTIONS = navigationData.footer;
+
+// Social links data using userData entity
+const SOCIAL_LINKS = [
+  {
+    href: userData.social.github,
+    icon: GitHubIcon,
+    label: 'GitHub'
+  },
+  {
+    href: userData.social.linkedin,
+    icon: LinkedInIcon, 
+    label: 'LinkedIn'
+  },
+  {
+    href: userData.social.email,
+    icon: MailIcon,
+    label: 'Email'
+  }
+];
+---
+
+<footer class="footer bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-16">
+  <div class="footer__container max-w-6xl mx-auto px-4 py-12">
+    
+    <!-- Main Footer Content -->
+    <div class="footer__content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+      
+      <!-- Brand Section -->
+      <div class="footer__brand lg:col-span-2">
+        <h3 class="footer__title text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          David Sandoval
+        </h3>
+        <p class="footer__description text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4 max-w-md">
+          {userTranslations.description}
+        </p>
+        
+        <!-- Social Links -->
+        <div class="footer__social">
+          <h4 class="footer__social-title text-sm font-medium text-gray-900 dark:text-white mb-3">
+            {footerTranslations.social}
+          </h4>
+          <div class="footer__social-links flex gap-3">
+            {SOCIAL_LINKS.map(({ href, icon: Icon, label }) => (
+              <SocialPill href={href} aria-label={label}>
+                <Icon class="size-4" />
+              </SocialPill>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="footer__links">
+        <h4 class="footer__links-title text-sm font-medium text-gray-900 dark:text-white mb-4">
+          {footerTranslations.quickLinks}
+        </h4>
+        <nav class="footer__nav">
+          <ul class="footer__nav-list space-y-2">
+            {FOOTER_SECTIONS.map(({ id, label }) => (
+              <li class="footer__nav-item">
+                <a 
+                  href={`#${id}`}
+                  class="footer__nav-link text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+                >
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Contact -->
+      <div class="footer__contact">
+        <h4 class="footer__contact-title text-sm font-medium text-gray-900 dark:text-white mb-4">
+          {footerTranslations.contact}
+        </h4>
+        <div class="footer__contact-info space-y-2">
+          <a 
+            href={userData.social.email}
+            class="footer__contact-link block text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+          >
+            {userData.contact.email}
+          </a>
+          <a 
+            href={userData.social.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer__contact-link block text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+          >
+            GitHub
+          </a>
+          <a 
+            href={userData.social.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer__contact-link block text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+          >
+            LinkedIn
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Section -->
+    <div class="footer__bottom border-t border-gray-200 dark:border-gray-700 pt-8">
+      <div class="footer__bottom-content flex flex-col md:flex-row justify-between items-center gap-4">
+        
+        <!-- Copyright -->
+        <div class="footer__copyright text-center md:text-left">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            © {currentYear} {footerTranslations.copyright}
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">
+            {footerTranslations.allRightsReserved}
+          </p>
+        </div>
+
+        <!-- Built With -->
+        <div class="footer__tech text-center md:text-right">
+          <div class="footer__tech-content flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <span>{footerTranslations.builtWith}</span>
+            <AstroIcon class="size-4" />
+            <span class="text-xs">{footerTranslations.and}</span>
+            <TailwindIcon class="size-4" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    animation: footer-fade-in 0.8s ease-out;
+  }
+
+  .footer__nav-link,
+  .footer__contact-link {
+    position: relative;
+  }
+
+  .footer__nav-link::after,
+  .footer__contact-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: currentColor;
+    transition: width 0.3s ease;
+  }
+
+  .footer__nav-link:hover::after,
+  .footer__contact-link:hover::after {
+    width: 100%;
+  }
+
+  .footer__brand {
+    animation: slide-up 0.6s ease-out;
+  }
+
+  .footer__links {
+    animation: slide-up 0.6s ease-out 0.1s both;
+  }
+
+  .footer__contact {
+    animation: slide-up 0.6s ease-out 0.2s both;
+  }
+
+  .footer__bottom {
+    animation: slide-up 0.6s ease-out 0.3s both;
+  }
+
+  @keyframes footer-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .footer__content {
+      text-align: center;
+    }
+
+    .footer__brand {
+      margin-bottom: 2rem;
+    }
+
+    .footer__social-links {
+      justify-content: center;
+    }
+
+    .footer__bottom-content {
+      text-align: center;
+    }
+  }
+
+  /* Accessibility improvements */
+  @media (prefers-reduced-motion: reduce) {
+    .footer,
+    .footer__brand,
+    .footer__links,
+    .footer__contact,
+    .footer__bottom,
+    .footer__nav-link,
+    .footer__contact-link {
+      animation: none;
+      transition: none;
+    }
+  }
+
+  /* Focus styles */
+  .footer__nav-link:focus,
+  .footer__contact-link:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Dark mode enhancements */
+  :global(.dark) .footer {
+    background: linear-gradient(135deg, rgb(17, 24, 39) 0%, rgb(31, 41, 55) 100%);
+  }
+
+  :global(.dark) .footer__bottom {
+    border-top-color: rgba(75, 85, 99, 0.3);
+  }
+</style>

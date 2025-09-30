@@ -1,0 +1,259 @@
+---
+/**
+ * Dynamic Language Select Feature - UI Component
+ * Features Layer - Dynamic language switching without URL changes
+ */
+
+/// <reference path="../types/globals.d.ts" />
+
+import { useFeatureTranslations } from '../../../shared/lib/i18n';
+import { dynamicLanguageI18n } from '../i18n';
+import { I18N_CONFIG, LANGUAGE_FLAGS, LANGUAGE_LABELS } from '../../../app/config/i18n';
+import type { DynamicLanguageProps } from '../model/types';
+
+interface Props extends DynamicLanguageProps {}
+
+const { 
+	class: className = '', 
+	id = 'dynamic-language-select',
+	showLabels = false,
+	showFlags = true,
+	initialLanguage,
+} = Astro.props;
+
+const { currentLanguage, t } = useFeatureTranslations(
+	new URL(Astro.request.url),
+	dynamicLanguageI18n
+);
+
+// Determine the actual current language (could be overridden by initialLanguage)
+const activeLanguage = initialLanguage || currentLanguage;
+
+const languageOptions = I18N_CONFIG.supportedLanguages.map(lang => ({
+	code: lang,
+	name: LANGUAGE_LABELS[lang],
+	flag: LANGUAGE_FLAGS[lang],
+	isActive: lang === activeLanguage
+}));
+---
+
+<div
+	class={`dynamic-language-select flex items-center space-x-1 border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden ${className}`}
+	{id}
+	data-current-language={activeLanguage}
+>
+	{
+		languageOptions.map(option => (
+			<button
+				type="button"
+				class={`language-option px-3 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-2 border-none bg-transparent cursor-pointer ${
+					option.isActive
+						? 'bg-blue-500 text-white shadow-md'
+						: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+				}`}
+				data-language={option.code}
+				aria-pressed={option.isActive}
+				aria-label={`${showLabels ? option.name : option.code.toUpperCase()} ${option.isActive ? `(${t('accessibility.currentLanguage')})` : ''}`}
+				title={`${t('accessibility.languageChanged')} ${option.name}`}
+			>
+				{showFlags && <span class="language-flag text-base" aria-hidden="true">{option.flag}</span>}
+				{showLabels ? (
+					<span class="language-label">{option.name}</span>
+				) : (
+					<span class="language-code font-semibold">{option.code.toUpperCase()}</span>
+				)}
+				{option.isActive && <span class="sr-only">({t('accessibility.currentLanguage')})</span>}
+			</button>
+		))
+	}
+</div>
+
+<!-- Status message for screen readers -->
+<div 
+	id={`${id}-status`}
+	class="sr-only" 
+	role="status" 
+	aria-live="polite"
+	aria-atomic="true"
+>
+</div>
+
+<script>
+	// Import the services dynamically for client-side use
+	async function initializeDynamicLanguage() {
+		try {
+			const [
+				{ initializeLanguage, changeLanguage },
+				{ initializeContentSwitching, updatePageContent, registerTranslationData },
+				{ registerAllWidgetTranslations, autoRegisterWidgetElements }
+			] = await Promise.all([
+				import('../lib/languageDetectionService.js'),
+				import('../lib/contentSwitchingService.js'),
+				import('../lib/widgetTranslationBridge.js')
+			]);
+
+			// Initialize content switching system
+			initializeContentSwitching();
+
+			// Make services globally available for bridge
+			window.DynamicLanguage = {
+				contentSwitching: { registerTranslationData, updatePageContent },
+				detection: { initializeLanguage, changeLanguage }
+			};
+
+			// Register all existing widget/entity translations
+			await registerAllWidgetTranslations();
+
+			// Auto-register widget elements after a short delay
+			setTimeout(() => {
+				autoRegisterWidgetElements();
+			}, 100);
+
+			// Initialize dynamic language selectors
+			document.querySelectorAll<HTMLElement>('.dynamic-language-select').forEach(root => {
+				const statusElement = document.getElementById(`${root.id}-status`);
+				const options = root.querySelectorAll<HTMLButtonElement>('.language-option');
+
+				// Initialize language on first load if not already set
+				if (!window.__LANGUAGE_INITIALIZED__) {
+					const detection = initializeLanguage();
+					updateActiveLanguage(root, detection.language);
+					updatePageContent(detection.language);
+					window.__LANGUAGE_INITIALIZED__ = true;
+				}
+
+				// Handle language selection clicks
+				options.forEach(option => {
+					option.addEventListener('click', async () => {
+						const newLanguage = option.dataset.language;
+						
+						if (!newLanguage || option.getAttribute('aria-pressed') === 'true') {
+							return; // Skip if no language or already active
+						}
+
+						// Update status for screen readers
+						if (statusElement) {
+							statusElement.textContent = 'Switching language...';
+						}
+
+						try {
+							// Change language using the service
+							changeLanguage(newLanguage as any);
+
+							// Update UI
+							updateActiveLanguage(root, newLanguage as any);
+
+							// Update status for screen readers
+							if (statusElement) {
+								const langName = option.querySelector('.language-label')?.textContent || 
+												 option.querySelector('.language-code')?.textContent;
+								statusElement.textContent = `Language changed to ${langName}`;
+								
+								// Clear status after announcement
+								setTimeout(() => {
+									statusElement.textContent = '';
+								}, 3000);
+							}
+
+						} catch (error) {
+							console.error('Failed to change language:', error);
+							
+							if (statusElement) {
+								statusElement.textContent = 'Error changing language';
+								setTimeout(() => {
+									statusElement.textContent = '';
+								}, 3000);
+							}
+						}
+					});
+				});
+
+				// Listen for external language changes
+				window.addEventListener('languageChanged', (event: Event) => {
+					const customEvent = event as CustomEvent;
+					const { language } = customEvent.detail;
+					updateActiveLanguage(root, language);
+				});
+			});
+
+			// Helper function to update active language in UI
+			function updateActiveLanguage(root: HTMLElement, language: string) {
+				const options = root.querySelectorAll<HTMLButtonElement>('.language-option');
+				
+				// Update root data attribute
+				root.dataset.currentLanguage = language;
+				
+				// Update button states
+				options.forEach(option => {
+					const isActive = option.dataset.language === language;
+					
+					// Update classes
+					if (isActive) {
+						option.className = option.className
+							.replace(/text-gray-700|dark:text-gray-300|hover:bg-gray-100|dark:hover:bg-gray-700/g, '')
+							.trim() + ' bg-blue-500 text-white shadow-md';
+					} else {
+						option.className = option.className
+							.replace(/bg-blue-500|text-white|shadow-md/g, '')
+							.trim() + ' text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700';
+					}
+					
+					// Update ARIA
+					option.setAttribute('aria-pressed', isActive.toString());
+					
+					// Update screen reader text
+					const srText = option.querySelector('.sr-only');
+					if (srText) {
+						srText.textContent = isActive ? '(Current language)' : '';
+					}
+				});
+			}
+
+		} catch (error) {
+			console.error('Failed to initialize dynamic language:', error);
+		}
+	}
+
+	// Initialize when DOM is ready
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initializeDynamicLanguage);
+	} else {
+		initializeDynamicLanguage();
+	}
+</script>
+
+<style>
+	.dynamic-language-select {
+		/* Ensure smooth transitions */
+		--transition-duration: 200ms;
+	}
+	
+	.language-option {
+		/* Smooth hover and active state transitions */
+		transition: all var(--transition-duration) ease-in-out;
+	}
+	
+	.language-option:focus-visible {
+		outline: 2px solid #3b82f6;
+		outline-offset: 2px;
+	}
+	
+	/* Animation for language changes */
+	:global(.lang-transition) .dynamic-language-select {
+		opacity: 0.8;
+	}
+	
+	/* High contrast mode support */
+	@media (prefers-contrast: high) {
+		.language-option {
+			border: 1px solid currentColor;
+		}
+	}
+	
+	/* Reduced motion support */
+	@media (prefers-reduced-motion: reduce) {
+		.language-option {
+			transition: none;
+		}
+	}
+</style>

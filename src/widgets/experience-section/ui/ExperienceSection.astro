@@ -1,0 +1,223 @@
+---
+/**
+ * Experience Section Widget - UI Component
+ * Widgets Layer - Professional experience section composition
+ * Composes: Experience entity with display components
+ */
+
+import { experienceI18n } from '../../../entities/experience';
+import TitleSection from '@shared/ui/components/TitleSection.astro';
+import LinkInline from '@shared/ui/components/LinkInline.astro';
+import { useExperienceSectionTranslations, getExperienceItems } from '../lib/translations';
+import type { ExperienceSectionProps } from '../model/types';
+
+interface Props extends ExperienceSectionProps {}
+
+const { class: className = '', id = 'experience', showTitle = true, maxItems } = Astro.props;
+
+const { currentLanguage, t } = useExperienceSectionTranslations(new URL(Astro.request.url));
+
+// Get experience data from entity
+const experienceData = experienceI18n[currentLanguage];
+const experienceItems = getExperienceItems(experienceData);
+
+// Apply max items limit if specified
+const displayItems = maxItems ? experienceItems.slice(0, maxItems) : experienceItems;
+---
+
+<section class={`experience-section ${className}`} {id}>
+	{
+		showTitle && (
+			<TitleSection>
+				{t('title')}
+				<span slot="subtitle">{t('subtitle')}</span>
+			</TitleSection>
+		)
+	}
+
+	<ol class="experience-section__timeline relative mt-16">
+		{
+			displayItems.map(experience => (
+				<li class="experience-section__item">
+					<div class="experience-item relative mx-12 pb-12 grid before:absolute before:left-[-35px] before:block before:h-full before:border-l-2 before:border-black/20 dark:before:border-white/15 before:content-[''] md:grid-cols-5 md:gap-10 md:space-x-4">
+						{/* Timeline Point and Header */}
+						<div class="experience-item__header relative pb-12 md:col-span-2">
+							<div class="experience-item__sticky sticky top-0">
+								<span
+									class="experience-item__bullet text-yellow-400 -left-[42px] absolute rounded-full text-5xl"
+									aria-hidden="true"
+								>
+									&bull;
+								</span>
+
+								<h3 class="experience-item__title text-xl font-bold text-yellow-400">
+									{experience.title}
+								</h3>
+
+								<h4 class="experience-item__company font-semibold text-xl text-gray-600 dark:text-white">
+									{experience.company}
+								</h4>
+
+								<time
+									class="experience-item__date p-0 m-0 text-sm text-gray-600/80 dark:text-white/80"
+									datetime={experience.date}
+								>
+									{experience.date}
+								</time>
+							</div>
+						</div>
+
+						{/* Content */}
+						<div class="experience-item__content relative flex flex-col gap-2 pb-4 text-gray-600 dark:text-gray-300 md:col-span-3 text-justify">
+							<p class="experience-item__description">{experience.description}</p>
+
+							{experience.link && (
+								<div class="experience-item__link mt-2">
+									<LinkInline href={experience.link} external>
+										{t('learnMore')}
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											class="experience-item__arrow w-5 icon icon-tabler icon-tabler-chevron-right inline ml-1"
+											width="24"
+											height="24"
+											viewBox="0 0 24 24"
+											stroke-width="2"
+											stroke="currentColor"
+											fill="none"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+											<path d="M9 6l6 6l-6 6" />
+										</svg>
+									</LinkInline>
+								</div>
+							)}
+						</div>
+					</div>
+				</li>
+			))
+		}
+	</ol>
+</section>
+
+<style>
+	.experience-section {
+		animation: section-fade-in 0.8s ease-out;
+	}
+
+	.experience-item {
+		animation: item-slide-in 0.6s ease-out;
+		animation-fill-mode: both;
+	}
+
+	.experience-item:nth-child(1) {
+		animation-delay: 0.1s;
+	}
+	.experience-item:nth-child(2) {
+		animation-delay: 0.2s;
+	}
+	.experience-item:nth-child(3) {
+		animation-delay: 0.3s;
+	}
+	.experience-item:nth-child(4) {
+		animation-delay: 0.4s;
+	}
+	.experience-item:nth-child(5) {
+		animation-delay: 0.5s;
+	}
+
+	.experience-item__bullet {
+		transition: color 0.3s ease;
+	}
+
+	.experience-item:hover .experience-item__bullet {
+		color: #fbbf24;
+		text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+	}
+
+	.experience-item__title {
+		transition: color 0.3s ease;
+	}
+
+	.experience-item:hover .experience-item__title {
+		color: #fbbf24;
+	}
+
+	.experience-item__arrow {
+		transition: transform 0.2s ease;
+	}
+
+	.experience-item__link:hover .experience-item__arrow {
+		transform: translateX(4px);
+	}
+
+	@keyframes section-fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes item-slide-in {
+		from {
+			opacity: 0;
+			transform: translateX(-30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	/* Responsive adjustments */
+	@media (max-width: 768px) {
+		.experience-item {
+			margin-left: 2rem;
+			margin-right: 1rem;
+		}
+
+		.experience-item__header {
+			padding-bottom: 2rem;
+		}
+
+		.experience-item__title {
+			font-size: 1.125rem;
+		}
+
+		.experience-item__company {
+			font-size: 1.125rem;
+		}
+	}
+
+	/* Accessibility improvements */
+	@media (prefers-reduced-motion: reduce) {
+		.experience-section,
+		.experience-item {
+			animation: none;
+		}
+
+		.experience-item__bullet,
+		.experience-item__title,
+		.experience-item__arrow {
+			transition: none;
+		}
+	}
+
+	/* Focus styles for accessibility */
+	.experience-item__link:focus {
+		outline: 2px solid #fbbf24;
+		outline-offset: 2px;
+		border-radius: 4px;
+	}
+
+	/* Dark mode enhancements */
+	:global(.dark) .experience-item:hover .experience-item__bullet {
+		text-shadow: 0 0 12px rgba(251, 191, 36, 0.8);
+	}
+</style>
