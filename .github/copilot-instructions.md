@@ -14,18 +14,19 @@ This project follows **Feature-Sliced Design (FSD)** architectural methodology f
 
 The project should be organized according to FSD layers (from top to bottom):
 
-1. **App** (`src/app`) - Global app configuration, routing, providers, and entry points
-2. **Pages** (`src/pages`) - Full pages and large page components (Astro pages)
-3. **Widgets** (`src/widgets`) - Large self-contained UI blocks that deliver complete use cases
-4. **Features** (`src/features`) - Reusable business features and user actions
+1. **App** (`src/app`) - Application initialization, routing, and global providers
+2. **Pages** (`src/pages`) - Complete pages and route handlers (Astro pages)
+3. **Widgets** (`src/widgets`) - Large UI blocks that compose features and entities
+4. **Features** (`src/features`) - Reusable business features and user interactions
 5. **Entities** (`src/entities`) - Business entities and domain models
-6. **Shared** (`src/shared`) - Reusable functionality detached from business logic
+6. **Shared** (`src/shared`) - Reusable utilities detached from business logic
 
 ### FSD Rules to Follow
 
-- **Import Rule**: Modules on one layer can only import from layers strictly below
-- **Slices Independence**: Slices within the same layer cannot depend on each other
-- **Segment Conventions**: Use standard segments: `ui`, `api`, `model`, `lib`, `config`
+- **Import Rule**: Layers can only import from layers strictly below them
+- **Layer Independence**: Slices within the same layer cannot depend on each other
+- **Public API**: Each slice must expose a clean public API through index files
+- **Cross-Entity References**: Use @x notation (e.g., `entities/song/@x/artist`) when necessary
 
 ## Technology Stack
 
@@ -42,19 +43,23 @@ The project should be organized according to FSD layers (from top to bottom):
 
 ```
 src/
-├── app/           # App layer - global configuration
-├── pages/         # Pages layer - Astro pages
-├── widgets/       # Widgets layer - large UI components
+├── app/           # App layer - initialization and routing
+│   ├── providers/     # Global providers (theme, i18n)
+│   ├── styles/        # Global application styles
+│   ├── routes/        # Route definitions (framework-specific)
+│   └── layouts/       # Application layouts
+├── pages/         # Pages layer - Astro pages and route handlers
+├── widgets/       # Widgets layer - large UI compositions
 ├── features/      # Features layer - business features
 ├── entities/      # Entities layer - business entities
 ├── shared/        # Shared layer - reusable utilities
-│   ├── ui/        # Shared UI components
-│   ├── lib/       # Utility functions
-│   ├── config/    # Configuration files
-│   └── assets/    # Static assets
-├── layouts/       # Astro layouts
-├── styles/        # Global styles
-└── i18n/          # Internationalization
+│   ├── ui/            # Design system components
+│   ├── lib/           # Utility functions
+│   ├── config/        # Configuration files
+│   └── assets/        # Static assets
+├── layouts/       # Astro layouts (legacy, move to app/layouts)
+├── styles/        # Global styles (legacy, move to app/styles)
+└── i18n/          # Internationalization (move to app or shared)
 ```
 
 ## Development Commands
@@ -147,20 +152,34 @@ src/
 **Current State**: The project is in the process of migrating to FSD architecture from a traditional component-based structure.
 
 **Migration Strategy**:
-1. Start by establishing App and Shared layers
-2. Move existing components to appropriate FSD layers
-3. Gradually resolve import violations
-4. Extract business logic into Features and Entities layers
+1. Start by establishing App layer for routing and global concerns
+2. Move existing components to appropriate FSD layers based on their purpose
+3. Create proper Public APIs for all slices using index.ts files
+4. Gradually resolve import violations and enforce layer rules
+5. Extract business logic into Features and Entities layers
+6. Compose Widgets from Features and Entities
 
-**Legacy Components**: Current components in `src/components/` should be gradually moved to appropriate FSD layers based on their purpose and business value.
+**Key Migration Principles**:
+- **Layer Import Rule**: Higher layers can only import from lower layers
+- **Slice Independence**: Components at the same layer cannot import from each other
+- **Public API Pattern**: All imports must go through slice index files
+- **Composition over Implementation**: Widgets compose, Features implement, Entities model
+
+**Legacy Components**: Current components in `src/components/` should be moved to:
+- **Shared/UI**: Simple, reusable UI components without business logic
+- **Features**: Interactive components with business logic and user value
+- **Widgets**: Large sections that compose multiple features/entities
+- **Entities**: Business-focused components tied to domain models
 
 ## Important Notes
 
 - Always run type checking before committing code
 - Follow FSD import rules strictly - no cross-layer violations
+- Use the Public API pattern - all imports go through index files
 - Keep the mobile-first, responsive design approach
 - Maintain both light and dark mode support
 - Use semantic HTML and follow accessibility best practices
 - Test changes on multiple screen sizes and browsers
 - Keep the design modern, clean, and professional
 - Prioritize performance and loading speed
+- Document architectural decisions and maintain FSD compliance
