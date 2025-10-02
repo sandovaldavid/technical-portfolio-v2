@@ -1,0 +1,26 @@
+---
+import { useTranslations, interpolate } from '@shared/lib/i18n';
+import { Language } from '@shared/config/i18n';
+import { Image } from 'astro:assets';
+const lang = Astro.currentLocale as Language;
+const t = useTranslations(lang);
+const altText = t('avatar.alt');
+const personalImageAlt = interpolate(altText, { name: 'Juan David Sandoval Salvador' });
+
+interface Props {
+	class?: string;
+	size?: 'small' | 'medium' | 'large';
+}
+
+const { class: avatarClass, size } = Astro.props;
+---
+
+<Image
+	src="/profile/perfil.webp"
+	alt={personalImageAlt}
+	class={`rounded-full object-cover ${avatarClass ?? ''} ${
+		size === 'small' ? 'w-12 h-12' : size === 'medium' ? 'w-24 h-24' : 'w-48 h-48'
+	}`}
+	width={size === 'small' ? 48 : size === 'medium' ? 96 : 192}
+	height={size === 'small' ? 48 : size === 'medium' ? 96 : 192}
+/>
