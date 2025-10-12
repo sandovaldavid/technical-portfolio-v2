@@ -1,18 +1,29 @@
 ---
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
+import { getLangFromUrl, useTranslations as useOldTranslations } from '../i18n/utils';
+import { interpolate, useTranslations } from '@shared/lib/i18n';
 import LinkedInIcon from '@assets/icons/LinkedIn.astro';
 import MailIcon from '@assets/icons/Mail.astro';
-import SocialPill from './SocialPill.astro';
+import { Avatar, SocialPill } from '@shared/ui';
 import GitHubIcon from '@assets/icons/GitHub.astro';
-import { Avatar } from '@shared/ui';
+import { Language } from '@shared/config/i18n/languages';
 
 const lang = getLangFromUrl(new URL(Astro.request.url));
-const t = useTranslations(lang);
+const t = useOldTranslations(lang);
+
+// Use the new FSD i18n system for avatar translations
+const fsdLang = lang === 'en' ? Language.ENGLISH : Language.SPANISH;
+const tFsd = useTranslations(fsdLang);
+
+// Prepare avatar alt text with i18n
+const avatarAltTemplate = tFsd('avatar.alt');
+const avatarAlt = interpolate(avatarAltTemplate, {
+	name: 'Juan David Sandoval Salvador',
+});
 ---
 
 <div class="max-w-3xl">
 	<div class="flex gap-4 mb-4 items-center">
-		<Avatar size="medium" />
+		<Avatar src="/profile/perfil.webp" alt={avatarAlt} size="md" />
 		<h1 class="text-4xl font-bold tracking-tight text-gray-800 sm:text-5xl dark:text-white">
 			{t('hero.intro')}
 		</h1>
