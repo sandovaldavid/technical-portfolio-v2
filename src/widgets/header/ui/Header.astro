@@ -1,32 +1,38 @@
 ---
-import ThemeToggle from './ThemeToggle.astro';
-import LanguagePicker from './LanguagePicker.astro';
+import { ThemeToggle } from '@features/theme-toggle';
+import { LanguagePicker } from '@features/language-picker';
 import MenuIcon from '@assets/icons/MenuIcon.astro';
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
+import { getLangFromUrl, useTranslations } from '@shared/lib/i18n';
+import { Language, DEFAULT_LANGUAGE } from '@shared/config/i18n';
 
-const lang = getLangFromUrl(new URL(Astro.request.url));
+const langCode = getLangFromUrl(new URL(Astro.request.url));
+const lang = langCode === 'en' ? Language.ENGLISH : Language.SPANISH;
 const t = useTranslations(lang);
+
+// For default language (Spanish), use root path without prefix
+// For other languages (English), use /lang/ prefix
+const basePath = langCode === DEFAULT_LANGUAGE ? '' : `/${langCode}`;
 
 const navItems = [
 	{
 		title: t('nav.experience'),
 		label: 'experiencia',
-		url: `/${lang}/#experience`,
+		url: `${basePath}/#experience`,
 	},
 	{
 		title: t('nav.badges'),
 		label: 'insignias',
-		url: `/${lang}/#badges`,
+		url: `${basePath}/#badges`,
 	},
 	{
 		title: t('nav.projects'),
 		label: 'proyectos',
-		url: `/${lang}/#projects`,
+		url: `${basePath}/#projects`,
 	},
 	{
 		title: t('nav.about'),
 		label: 'sobre-mi',
-		url: `/${lang}/#about-me`,
+		url: `${basePath}/#about-me`,
 	},
 	{
 		title: t('nav.contact'),
@@ -36,7 +42,7 @@ const navItems = [
 ];
 ---
 
-<header class="fixed top-0 z-10 flex items-center justify-center w-full mx-auto mt-2">
+<header class="fixed top-0 z-10 flex items-center justify-center mx-auto">
 	<!-- Desktop/Tablet Nav -->
 	<nav
 		class="hidden sm:flex px-3 text-sm font-medium rounded-full text-gray-600 dark:text-gray-200 justify-center items-center"
