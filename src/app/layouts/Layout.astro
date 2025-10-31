@@ -1,8 +1,8 @@
 ---
 import '@app/styles/global.css';
 import '@fontsource-variable/onest';
-import Header from '@/components/Header.astro';
-import Footer from '@/components/Footer.astro';
+import { Header } from '@widgets/header';
+import { Footer } from '@widgets/footer';
 
 interface Props {
 	title: string;
@@ -37,17 +37,22 @@ const { description, title, img_preview } = Astro.props;
 		</script>
 	</head>
 
-	<body
-		class="relative text-black dark:text-white flex flex-col justify-center items-center bg-white dark:bg-gray-950"
-	>
-		<div
-			class="absolute top-0 bottom-0 z-[-2] min-h-screen w-full h-full bg-gray-50 dark:bg-gray-950
-			bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(217,216,255,0.5),rgba(255,255,255,0.9))]
-			dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"
-		>
+	<body class="relative text-black dark:text-white bg-white dark:bg-gray-950 overflow-x-hidden">
+		<div class="fixed inset-0 z-[-2] bg-gray-50 dark:bg-gray-950 background-pattern"></div>
+		<div class="relative flex flex-col justify-center items-center">
+			<Header />
+			<slot />
+			<Footer />
 		</div>
-		<Header />
-		<slot />
-		<Footer />
 	</body>
+
+	<style>
+		.background-pattern {
+			background-image: url('/background/polygon-luminary.svg');
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			opacity: 0.4;
+		}
+	</style>
 </html>
