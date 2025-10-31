@@ -1,21 +1,17 @@
 ---
-import { getLangFromUrl, useTranslations as useOldTranslations } from '../i18n/utils';
-import { interpolate, useTranslations } from '@shared/lib/i18n';
+import { getLangFromUrl, useTranslations, interpolate } from '@shared/lib/i18n';
 import LinkedInIcon from '@assets/icons/LinkedIn.astro';
 import MailIcon from '@assets/icons/Mail.astro';
 import { Avatar, SocialPill } from '@shared/ui';
 import GitHubIcon from '@assets/icons/GitHub.astro';
-import { Language } from '@shared/config/i18n/languages';
+import { Language } from '@shared/config/i18n';
 
-const lang = getLangFromUrl(new URL(Astro.request.url));
-const t = useOldTranslations(lang);
-
-// Use the new FSD i18n system for avatar translations
-const fsdLang = lang === 'en' ? Language.ENGLISH : Language.SPANISH;
-const tFsd = useTranslations(fsdLang);
+const langCode = getLangFromUrl(new URL(Astro.request.url));
+const lang = langCode === 'en' ? Language.ENGLISH : Language.SPANISH;
+const t = useTranslations(lang);
 
 // Prepare avatar alt text with i18n
-const avatarAltTemplate = tFsd('avatar.alt');
+const avatarAltTemplate = t('avatar.alt');
 const avatarAlt = interpolate(avatarAltTemplate, {
 	name: 'Juan David Sandoval Salvador',
 });
