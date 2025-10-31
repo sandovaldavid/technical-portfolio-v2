@@ -1,51 +1,29 @@
-import type { BadgesByLanguage } from './types';
+import type { BadgeItem } from './types';
 
 /**
- * Certification badges database organized by language
+ * Certification badges database
  */
-export const BADGES: BadgesByLanguage = {
-	es: [
+export function getBadgesData(t: (key: string) => string): BadgeItem[] {
+	return [
 		{
-			label: 'GitHub Foundations | GitHub',
+			label: t('badges.github-foundations.label'),
 			link: 'https://www.credly.com/badges/5ba766a3-e275-4be8-ac14-17a69119b3af/linked_in_profile',
 			image: '/badges/github-foundations.png',
 		},
 		{
-			label: 'Modelado de Datos con Python | ONE - G8',
+			label: t('badges.data-modeling.label'),
 			link: 'https://app.aluracursos.com/degree/certificate/d26312ad-b17d-4a4f-9b91-a761ea22fd25?lang',
 			image: 'https://cdn1.gnarususercontent.com.br/6/409126/0cbae998-197d-4fc8-ac13-5d12d560e624.png',
 		},
 		{
-			label: 'ETL | ONE - G8',
+			label: t('badges.etl.label'),
 			link: 'https://app.aluracursos.com/degree/certificate/817f4fb9-ad6a-429d-b67b-7769f0cd935c?lang',
 			image: 'https://cdn1.gnarususercontent.com.br/6/409126/007f0f58-5970-4133-94b8-9af2551f2ab2.png',
 		},
 		{
-			label: 'Estadisticas y Machine Learning | ONE - G8',
+			label: t('badges.statistics-ml.label'),
 			link: 'https://app.aluracursos.com/degree/certificate/2f9a9981-0e97-4d43-a400-e3b2761d407d?lang',
 			image: 'https://cdn1.gnarususercontent.com.br/6/409126/832d01c5-aa1f-4a72-894b-9bb18b8d2a00.png',
 		},
-	],
-	en: [
-		{
-			label: 'GitHub Foundations',
-			link: 'https://www.credly.com/badges/5ba766a3-e275-4be8-ac14-17a69119b3af/linked_in_profile',
-			image: '/badges/github-foundations.png',
-		},
-		{
-			label: 'Data Modeling with Python | ONE - G8',
-			link: 'https://app.aluracursos.com/degree/certificate/d26312ad-b17d-4a4f-9b91-a761ea22fd25?lang',
-			image: 'https://cdn1.gnarususercontent.com.br/6/409126/0cbae998-197d-4fc8-ac13-5d12d560e624.png',
-		},
-		{
-			label: 'ETL | ONE - G8',
-			link: 'https://app.aluracursos.com/degree/certificate/817f4fb9-ad6a-429d-b67b-7769f0cd935c?lang',
-			image: 'https://cdn1.gnarususercontent.com.br/6/409126/007f0f58-5970-4133-94b8-9af2551f2ab2.png',
-		},
-		{
-			label: 'Statistics and Machine Learning | ONE - G8',
-			link: 'https://app.aluracursos.com/degree/certificate/2f9a9981-0e97-4d43-a400-e3b2761d407d?lang',
-			image: 'https://cdn1.gnarususercontent.com.br/6/409126/832d01c5-aa1f-4a72-894b-9bb18b8d2a00.png',
-		},
-	],
-};
+	];
+}

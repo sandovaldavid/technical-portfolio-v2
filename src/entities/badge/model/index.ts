@@ -1,2 +1,2 @@
-export { BADGES } from './data';
-export type { BadgeItem, BadgesByLanguage, BadgeLanguage } from './types';
+export { getBadgesData } from './data';
+export type { BadgeItem } from './types';
