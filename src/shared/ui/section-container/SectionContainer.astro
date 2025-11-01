@@ -1,0 +1,12 @@
+---
+interface Props {
+	class?: string;
+	id?: string;
+}
+
+const { class: className, id } = Astro.props;
+---
+
+<section {id} class:list={['w-full mx-auto container', 'lg:max-w-4xl md:max-w-2xl', className]}>
+	<slot />
+</section>

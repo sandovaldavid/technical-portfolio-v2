@@ -2,15 +2,15 @@
 import CodeIcon from '@assets/icons/Code.astro';
 import ProfileCheckIcon from '@assets/icons/ProfileCheck.astro';
 import StarIcon from '@assets/icons/Star.astro';
-import Layout from '../../layouts/Layout.astro';
-import Experience from '../../components/Experience.astro';
-import SectionContainer from '../../components/SectionContainer.astro';
+import Layout from '@app/layouts/Layout.astro';
+import { Experience } from '@widgets/experience';
+import { SectionContainer } from '@shared/ui';
 import BriefCaseIcon from '@assets/icons/Briefcase.astro';
-import Projects from '../../components/Projects.astro';
-import TitleSection from '../../components/TitleSection.astro';
-import AboutMe from '../../components/AboutMe.astro';
-import Badges from '../../components/Badges.astro';
-import Hero from '../../components/Hero.astro';
+import { Projects } from '@widgets/projects';
+import { TitleSection } from '@shared/ui';
+import { AboutMe } from '@widgets/about-me';
+import { Badges } from '@widgets/badges';
+import { Hero } from '@widgets/hero';
 ---
 
 <Layout
@@ -18,8 +18,8 @@ import Hero from '../../components/Hero.astro';
 	description="Hire David Sandoval, web and mobile developer. Specialized in creating unique applications."
 	img_preview="/projects/portfolio.webp"
 >
-	<main class="px-4">
-		<div class="py-16 md:py-26 min-h-screen flex flex-col justify-around">
+	<main class="px-4 sm:px-6 lg:px-8">
+		<div class="max-w-4xl py-16 md:py-20 lg:py-24 flex flex-col justify-around">
 			<SectionContainer class="mb-4">
 				<Hero />
 			</SectionContainer>
@@ -31,7 +31,7 @@ import Hero from '../../components/Hero.astro';
 				<Badges />
 			</SectionContainer>
 		</div>
-		<div class="space-y-24">
+		<div class="max-w-4xl space-y-16 md:space-y-20 lg:space-y-24">
 			<SectionContainer id="experience">
 				<TitleSection>
 					<BriefCaseIcon class="size-8" />

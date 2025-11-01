@@ -57,9 +57,15 @@ src/
 │   ├── lib/           # Utility functions
 │   ├── config/        # Configuration files
 │   └── assets/        # Static assets
+├── components/    # LEGACY: Current components (migrating to FSD)
+│   ├── Header.astro    # → widgets/header
+│   ├── Hero.astro      # → widgets/hero
+│   ├── Projects.astro  # → widgets/projects
+│   └── ...
 ├── layouts/       # Astro layouts (legacy, move to app/layouts)
 ├── styles/        # Global styles (legacy, move to app/styles)
-└── i18n/          # Internationalization (move to app or shared)
+├── i18n/          # Internationalization (move to app or shared)
+└── assets/        # Icons and assets (move to shared/assets)
 ```
 
 ## Development Commands
@@ -146,6 +152,66 @@ src/
 - Test responsive design on different screen sizes
 - Verify both light and dark mode functionality
 - Check accessibility with screen readers
+
+## Current Architecture Patterns
+
+### Path Aliases
+Use configured path aliases for clean imports:
+```typescript
+import Header from '@/components/Header.astro';        // Legacy
+import { Button } from '@/shared/ui';                  // FSD target
+import { useTranslations } from '@/i18n/utils';        // Current
+```
+
+### Theme System
+Theme switching uses CSS custom properties with localStorage persistence:
+```astro
+---
+// Theme toggle with system preference detection
+<script is:inline>
+  document.documentElement.classList.toggle(
+    'dark',
+    localStorage.theme === 'dark' ||
+    (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+  );
+</script>
+```
+
+### Internationalization
+Custom translation system with language detection:
+```astro
+---
+// Usage in components
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+const lang = getLangFromUrl(new URL(Astro.request.url));
+const t = useTranslations(lang);
+---
+
+<h1>{t('hero.title')}</h1>
+```
+
+### Component Props Pattern
+Strongly typed component interfaces:
+```astro
+---
+// Example from existing components
+interface Props {
+  title: string;
+  description: string;
+  img_preview: string;
+}
+const { description, title, img_preview } = Astro.props;
+---
+
+```
+
+### Color System
+Custom OKLCH-based color system with semantic naming:
+```css
+/* From src/styles/colors.css */
+--color-brand: oklch(62.005% 0.18129 259.39);
+--color-surface: oklch(100% 0 0); /* light-dark() for theme switching */
+```
 
 ## Migration to FSD Notes
 

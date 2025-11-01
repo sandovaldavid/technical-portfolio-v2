@@ -1,31 +1,121 @@
 ---
-import Badge from '@/components/Badge.astro';
-import SectionContainer from '@/components/SectionContainer.astro';
-import SocialPill from '@/components/SocialPill.astro';
+import Layout from '@app/layouts/Layout.astro';
+
+// Import all UI components
+import {
+	LinkButton,
+	LinkInline,
+	SectionContainer,
+	TitleSection,
+	Avatar,
+	Badge,
+	SocialPill,
+} from '@shared/ui';
+
+// Import icons
+import GitHubIcon from '@assets/icons/GitHub.astro';
 import LinkedInIcon from '@assets/icons/LinkedIn.astro';
-import Layout from '@/layouts/Layout.astro';
+import MailIcon from '@assets/icons/Mail.astro';
+
+const metadata = {
+	title: 'Componentes UI - Portfolio David Sandoval',
+	description: 'Muestra de componentes UI reutilizables construidos con arquitectura FSD',
+};
 ---
 
 <Layout
-	title="Design System porfolio.dev"
-	description="El catálogo de componentes de nuestro porfolio"
+	title={metadata.title}
+	description={metadata.description}
 	img_preview="/projects/portfolio.webp"
 >
-	<SectionContainer class="py-44 pb-32 flex flex-col gap-y-10">
-		<article class="mb-10">
-			<h1 class="mb-4 text-xl font-semibold">&lt;Badge /&gt;</h1>
+	<main class="px-4 py-16">
+		<SectionContainer>
+			<TitleSection>Muestra de Componentes UI</TitleSection>
 
-			<Badge>Disponible para trabajar</Badge>
-		</article>
+			<div class="space-y-16 mt-8">
+				<!-- Buttons Section -->
+				<section>
+					<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+						Botones
+					</h2>
+					<div class="flex flex-wrap gap-4">
+						<LinkButton href="https://github.com">
+							<GitHubIcon class="size-6" />
+							GitHub
+						</LinkButton>
+						<LinkButton href="https://linkedin.com">
+							<LinkedInIcon class="size-6" />
+							LinkedIn
+						</LinkButton>
+						<LinkButton href="mailto:example@email.com">
+							<MailIcon class="size-6" />
+							Email
+						</LinkButton>
+					</div>
+				</section>
 
-		<article class="mb-10">
-			<h1 class="mb-4 text-xl font-semibold">&lt SocialPill /&gt;</h1>
-			<div class="flex">
-				<SocialPill href="https://linkedin.com/in/midudev">
-					<LinkedInIcon class="size-4 md:size-6" />
-					LinkedIn
-				</SocialPill>
+				<!-- Links Section -->
+				<section>
+					<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+						Enlaces
+					</h2>
+					<div class="flex flex-wrap gap-4">
+						<LinkInline href="#">Ejemplo de Enlace</LinkInline>
+						<LinkInline href="#">Otro Enlace</LinkInline>
+					</div>
+				</section>
+
+				<!-- Avatar Section -->
+				<section>
+					<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Avatar</h2>
+					<div class="flex flex-wrap gap-4 items-center">
+						<Avatar src="/profile/perfil.webp" alt="Profile" size="sm" />
+						<Avatar src="/profile/perfil.webp" alt="Profile" size="md" />
+						<Avatar src="/profile/perfil.webp" alt="Profile" size="lg" />
+					</div>
+				</section>
+
+				<!-- Badges Section -->
+				<section>
+					<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+						Insignias
+					</h2>
+					<div class="flex flex-wrap gap-4">
+						<Badge>Ejemplo de Insignia</Badge>
+						<Badge>Otra Insignia</Badge>
+						<Badge>Tecnología</Badge>
+					</div>
+				</section>
+
+				<!-- Social Pills Section -->
+				<section>
+					<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+						Píldoras Sociales
+					</h2>
+					<div class="flex flex-wrap gap-4">
+						<SocialPill href="https://github.com">
+							<GitHubIcon class="size-4" />
+							GitHub
+						</SocialPill>
+						<SocialPill href="https://linkedin.com">
+							<LinkedInIcon class="size-4" />
+							LinkedIn
+						</SocialPill>
+					</div>
+				</section>
+
+				<!-- Containers Section -->
+				<section>
+					<h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+						Contenedores
+					</h2>
+					<SectionContainer class="bg-gray-100 dark:bg-gray-800 p-4">
+						<p class="text-gray-700 dark:text-gray-300">
+							Este es un componente SectionContainer con contenido de ejemplo.
+						</p>
+					</SectionContainer>
+				</section>
 			</div>
-		</article>
-	</SectionContainer>
+		</SectionContainer>
+	</main>
 </Layout>
