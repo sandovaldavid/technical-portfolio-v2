@@ -15,13 +15,14 @@ const PROJECTS: ProjectItem[] = getProjectsData(t);
 <div class="flex flex-col gap-y-16">
 	{
 		PROJECTS.map(({ image, title, description, tags, link, github }) => (
-			<article class="flex flex-col space-x-0 space-y-8 group md:flex-row md:space-x-8 md:space-y-0">
-				<div class="w-full md:w-1/2">
-					<div class="relative flex flex-col items-center col-span-6 row-span-5 gap-8 transition duration-500 ease-in-out transform shadow-xl overflow-clip rounded-xl sm:rounded-xl md:group-hover:-translate-y-1 md:group-hover:shadow-2xl lg:border lg:border-gray-800 lg:hover:border-gray-700 lg:hover:bg-gray-800/50">
+			<article class="flex flex-col space-x-0 space-y-6 sm:space-y-8 group md:flex-row md:space-x-6 lg:space-x-8 md:space-y-0">
+				<div class="md:w-1/2">
+					<div class="relative flex flex-col items-center overflow-hidden transition duration-500 ease-in-out transform shadow-lg rounded-xl md:group-hover:-translate-y-1 md:group-hover:shadow-2xl lg:border lg:border-gray-800 lg:hover:border-gray-700 lg:hover:bg-gray-800/50">
 						<Image
 							src={image}
-							width="1600"
-							height="900"
+							width={800}
+							height={450}
+							class="object-cover aspect-video"
 							decoding="async"
 							loading="lazy"
 							alt={`${title} project image`}
@@ -29,7 +30,7 @@ const PROJECTS: ProjectItem[] = getProjectsData(t);
 					</div>
 				</div>
 
-				<div class="w-full md:w-1/2 md:max-w-lg">
+				<div class=" md:w-1/2 md:max-w-lg">
 					<h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{title}</h3>
 					<div class="flex flex-wrap mt-2">
 						<ul class="flex flex-row mb-2 gap-x-2 flex-wrap">
