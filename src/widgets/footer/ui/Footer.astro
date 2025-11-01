@@ -1,9 +1,7 @@
 ---
-import { getLangFromUrl, useTranslations } from '@shared/lib/i18n';
-import { Language } from '@shared/config/i18n';
+import { getLangFromUrl, useTranslations, getLocalizedPath } from '@shared/lib/i18n';
 
-const langCode = getLangFromUrl(new URL(Astro.request.url));
-const lang = langCode === 'en' ? Language.ENGLISH : Language.SPANISH;
+const lang = getLangFromUrl(new URL(Astro.request.url));
 const t = useTranslations(lang);
 
 const currentYear = new Date().getFullYear();
@@ -24,7 +22,7 @@ const currentYear = new Date().getFullYear();
 		<ul
 			class="flex flex-wrap items-center justify-center mt-3 text-sm font-medium dark:text-white/90 sm:mt-0"
 		>
-			<a href={`/${langCode}/#about-me`} class="hover:underline me-4 md:me-6"
+			<a href={getLocalizedPath(lang, '/#about-me')} class="hover:underline me-4 md:me-6"
 				>{t('footer.about')}</a
 			>
 			<a id="contacto" href="mailto:sandovaldavid2201@gmail.com" class="hover:underline"
