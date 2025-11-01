@@ -37,9 +37,9 @@ const { description, title, img_preview } = Astro.props;
 		</script>
 	</head>
 
-	<body class="relative text-black dark:text-white bg-white dark:bg-gray-950 overflow-x-hidden">
+	<body class="text-black dark:text-white bg-white dark:bg-gray-950 flex flex-col">
 		<div class="fixed inset-0 z-[-2] bg-gray-50 dark:bg-gray-950 background-pattern"></div>
-		<div class="relative flex flex-col justify-center items-center">
+		<div class="flex flex-col justify-center items-center w-full">
 			<Header />
 			<slot />
 			<Footer />
@@ -59,6 +59,22 @@ const { description, title, img_preview } = Astro.props;
 			backdrop-filter: blur(8px);
 		}
 
+		/* Mobile: Más blur y más opacidad en la capa blanca */
+		@media (max-width: 767px) {
+			.background-pattern {
+				filter: blur(1px);
+			}
+			.background-pattern::before {
+				background: rgba(255, 255, 255, 0.85);
+			}
+		}
+
+		/* Tablet */
+		@media (min-width: 768px) and (max-width: 1023px) {
+			.background-pattern {
+			}
+		}
+
 		.background-pattern::before {
 			content: '';
 			position: absolute;
@@ -71,6 +87,7 @@ const { description, title, img_preview } = Astro.props;
 			opacity: 0.4;
 			filter: none;
 			backdrop-filter: none;
+			background-size: cover;
 		}
 
 		.dark .background-pattern::before {
