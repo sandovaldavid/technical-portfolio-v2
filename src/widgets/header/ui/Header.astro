@@ -42,10 +42,10 @@ const navItems = [
 ];
 ---
 
-<header class="fixed top-0 z-10 flex items-center justify-center mx-auto">
+<header class="fixed top-0 left-0 right-0 z-10 flex items-center justify-center py-3 px-4">
 	<!-- Desktop/Tablet Nav -->
 	<nav
-		class="hidden sm:flex px-3 text-sm font-medium rounded-full text-gray-600 dark:text-gray-200 justify-center items-center"
+		class="hidden md:flex px-4 py-2 text-sm font-medium rounded-full text-gray-600 dark:text-gray-200 justify-center items-center gap-1"
 	>
 		{
 			navItems.map(link => (
@@ -63,7 +63,9 @@ const navItems = [
 	</nav>
 
 	<!-- Mobile Nav -->
-	<nav class="flex w-11/12 items-center justify-between px-3 sm:hidden rounded-md">
+	<nav
+		class="flex md:hidden w-full max-w-screen-sm items-center justify-between px-4 py-2 rounded-full"
+	>
 		<ThemeToggle />
 		<button
 			id="mobile-menu-btn"
