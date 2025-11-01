@@ -1,0 +1,97 @@
+---
+import '@app/styles/global.css';
+import '@fontsource-variable/onest';
+import { Header } from '@widgets/header';
+import { Footer } from '@widgets/footer';
+
+interface Props {
+	title: string;
+	description: string;
+	img_preview: string;
+}
+const { description, title, img_preview } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content={description} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={img_preview} />
+		<meta property="og:url" content="https://devsandoval.me" />
+		<meta property="og:type" content="website" />
+		<title>{title}</title>
+		<script is:inline>
+			// On page load or when changing themes, best to add inline in `head` to avoid FOUC
+			document.documentElement.classList.toggle(
+				'dark',
+				localStorage.theme === 'dark' ||
+					(!('theme' in localStorage) &&
+						window.matchMedia('(prefers-color-scheme: dark)').matches)
+			);
+		</script>
+	</head>
+
+	<body class="text-black dark:text-white bg-white dark:bg-gray-950 flex flex-col">
+		<div class="fixed inset-0 z-[-2] bg-gray-50 dark:bg-gray-950 background-pattern"></div>
+		<div class="flex flex-col justify-center items-center w-full">
+			<Header />
+			<slot />
+			<Footer />
+		</div>
+	</body>
+
+	<style>
+		/*Background Layout*/
+
+		.background-pattern {
+			background-image: url('/background/polygon-luminary.svg');
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			opacity: 1;
+			filter: blur(0.5px);
+			backdrop-filter: blur(8px);
+		}
+
+		/* Mobile: Más blur y más opacidad en la capa blanca */
+		@media (max-width: 767px) {
+			.background-pattern {
+				filter: blur(1px);
+			}
+			.background-pattern::before {
+				background: rgba(255, 255, 255, 0.85);
+			}
+		}
+
+		/* Tablet */
+		@media (min-width: 768px) and (max-width: 1023px) {
+			.background-pattern {
+			}
+		}
+
+		.background-pattern::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: rgba(255, 255, 255, 0.7);
+			z-index: 1;
+		}
+
+		.dark .background-pattern {
+			opacity: 0.4;
+			filter: none;
+			backdrop-filter: none;
+			background-size: cover;
+		}
+
+		.dark .background-pattern::before {
+			display: none;
+		}
+	</style>
+</html>
