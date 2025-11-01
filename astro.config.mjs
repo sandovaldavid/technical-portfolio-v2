@@ -9,6 +9,7 @@ export default defineConfig({
 	integrations: [robotsTxt()],
 	site: 'https://devsandoval.me',
 	vite: {
+		// @ts-ignore - Tailwind CSS v4 vite plugin type compatibility
 		plugins: [tailwindcss()],
 	},
 	i18n: {
