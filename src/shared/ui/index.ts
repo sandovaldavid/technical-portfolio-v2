@@ -1,5 +1,6 @@
 export { Avatar } from './avatar';
 export { Badge } from './badge';
+export { Button } from './button';
 export { LinkButton } from './link-button';
 export { LinkInline } from './link-inline';
 export { SectionContainer } from './section-container';
