@@ -1,0 +1,148 @@
+---
+import ArrowLeft from '@/assets/icons/ArrowLeft.astro';
+import Home from '@/assets/icons/Home.astro';
+import QuoteLeft from '@/assets/icons/QuoteLeft.astro';
+import QuoteRight from '@/assets/icons/QuoteRight.astro';
+import '@app/styles/global.css';
+import '@fontsource-variable/onest';
+import { SectionContainer, LinkButton, Button } from '@shared/ui';
+
+const metadata = {
+	title: '404 - Página no encontrada | David Sandoval',
+	description: 'La página que buscas no existe o ha sido movida.',
+};
+---
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content={metadata.description} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>{metadata.title}</title>
+		<script is:inline>
+			// Theme initialization
+			document.documentElement.classList.toggle(
+				'dark',
+				localStorage.theme === 'dark' ||
+					(!('theme' in localStorage) &&
+						window.matchMedia('(prefers-color-scheme: dark)').matches)
+			);
+		</script>
+	</head>
+
+	<body
+		class="min-h-screen flex items-center justify-center bg-surface dark:bg-surface-dark text-foreground dark:text-foreground-dark"
+	>
+		<main class="w-full px-4 py-16">
+			<SectionContainer>
+				<div class="text-center space-y-8">
+					<!-- Animated 404 Number -->
+					<div class="relative">
+						<div
+							class="text-[clamp(8rem,20vw,16rem)] font-bold leading-none select-none"
+							aria-hidden="true"
+						>
+							<span
+								class="inline-block bg-linear-to-br from-brand-dark via-brand to-accent dark:from-brand-light dark:via-accent-light dark:to-info bg-clip-text text-transparent"
+							>
+								404
+							</span>
+						</div>
+
+						<!-- Decorative elements -->
+						<div
+							class="absolute inset-0 -z-10 blur-3xl opacity-20 dark:opacity-30"
+							aria-hidden="true"
+						>
+							<div
+								class="absolute top-1/4 left-1/4 w-32 h-32 md:w-48 md:h-48 bg-brand dark:bg-brand-light rounded-full animate-blob"
+							>
+							</div>
+							<div
+								class="absolute top-1/3 right-1/4 w-32 h-32 md:w-48 md:h-48 bg-accent dark:bg-accent-light rounded-full animate-blob animation-delay-2000"
+							>
+							</div>
+							<div
+								class="absolute bottom-1/4 left-1/3 w-32 h-32 md:w-48 md:h-48 bg-info dark:bg-info-light rounded-full animate-blob animation-delay-4000"
+							>
+							</div>
+						</div>
+					</div>
+
+					<!-- Error Message -->
+					<div class="space-y-4">
+						<h1
+							class="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground dark:text-foreground-dark"
+						>
+							Página no encontrada
+						</h1>
+						<p
+							class="text-lg md:text-xl text-secondary dark:text-secondary-dark max-w-2xl mx-auto"
+						>
+							Parece que te has perdido en el código. La página que buscas no existe o
+							ha sido movida a otra ubicación.
+						</p>
+					</div>
+
+					<!-- Action Buttons -->
+					<div class="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+						<LinkButton href="/">
+							<Home class="size-5" />
+							Ir al inicio
+						</LinkButton>
+						<Button variant="secondary" onclick="history.back()">
+							<ArrowLeft class="size-5" />
+							Volver atrás
+						</Button>
+					</div>
+					<!-- Fun fact -->
+					<div class="pt-8">
+						<div class="flex items-start justify-center gap-2 max-w-2xl mx-auto">
+							<QuoteLeft
+								class="size-5 shrink-0 text-brand dark:text-brand-light opacity-60 mt-0.5"
+							/>
+							<p
+								class="text-base text-secondary dark:text-secondary-dark italic leading-relaxed"
+							>
+								En un multiverso infinito, esta página existe... solo que no en
+								este.
+							</p>
+							<QuoteRight
+								class="size-5 shrink-0 text-brand dark:text-brand-light opacity-60 mt-0.5"
+							/>
+						</div>
+					</div>
+				</div>
+			</SectionContainer>
+		</main>
+	</body>
+</html>
+
+<style>
+	@keyframes blob {
+		0%,
+		100% {
+			transform: translate(0, 0) scale(1);
+		}
+		33% {
+			transform: translate(30px, -50px) scale(1.1);
+		}
+		66% {
+			transform: translate(-20px, 20px) scale(0.9);
+		}
+	}
+
+	.animate-blob {
+		animation: blob 7s infinite;
+	}
+
+	.animation-delay-2000 {
+		animation-delay: 2s;
+	}
+
+	.animation-delay-4000 {
+		animation-delay: 4s;
+	}
+</style>
