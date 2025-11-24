@@ -1,4 +1,10 @@
 {
 	"installCommand": "npm install",
-	"buildCommand": "npm run build"
+	"buildCommand": "npm run build",
+	"rewrites": [
+		{
+			"source": "/links",
+			"destination": "https://www.linkdevs.social"
+		}
+	]
 }
