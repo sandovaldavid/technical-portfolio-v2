@@ -6,6 +6,10 @@
 	--color-brand-dark: oklch(46.205% 0.17901 260.3);
 	--color-brand-light: oklch(76.192% 0.10756 259.05);
 	--color-brand-subtle: oklch(91.431% 0.03708 258.37);
+	--color-primary-100: #c3d8fb;
+	--color-primary-300: #7cabf6;
+	--color-primary-700: #2b5cab;
+	--color-primary-900: #193665;
 
 	/* Accent - Generan: bg-accent, text-accent, etc. */
 	--color-accent: oklch(78.582% 0.11902 175.12);
@@ -104,7 +108,11 @@
 
 :root {
 	/* Variables para uso en CSS personalizado */
-	--portfolio-gradient: linear-gradient(135deg, var(--color-brand) 0%, var(--color-accent) 100%);
+	--portfolio-gradient: linear-gradient(
+		145deg,
+		var(--color-primary-100) 50%,
+		var(--color-primary-300) 95%
+	);
 	--code-highlight: var(--color-brand-subtle);
 	--selection-bg: var(--color-brand-light);
 
@@ -120,4 +128,13 @@
 		--surface: var(--color-surface-dark);
 		--foreground: var(--color-foreground-dark);
 	}
+}
+
+/* Modo oscuro manual*/
+.dark {
+	--portfolio-gradient: linear-gradient(
+		145deg,
+		var(--color-primary-900) 50%,
+		var(--color-primary-700) 95%
+	);
 }
