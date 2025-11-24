@@ -46,54 +46,22 @@ const { description, title, img_preview } = Astro.props;
 			<slot />
 			<Footer />
 		</div>
-	</body>
-
-	<style>
+	</body><style>
 		/*Background Layout*/
-
 		.background-pattern {
-			background-image: url('/background/polygon-luminary.svg');
-			background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			opacity: 1;
-			filter: blur(0.5px);
-			backdrop-filter: blur(8px);
-		}
-
-		/* Mobile: Más blur y más opacidad en la capa blanca */
-		@media (max-width: 767px) {
-			.background-pattern {
-				filter: blur(1px);
-			}
-			.background-pattern::before {
-				background: rgba(255, 255, 255, 0.85);
-			}
-		}
-
-		/* Tablet */
-		@media (min-width: 768px) and (max-width: 1023px) {
-			.background-pattern {
-			}
+			background: var(--portfolio-gradient);
 		}
 
 		.background-pattern::before {
 			content: '';
 			position: absolute;
 			inset: 0;
-			background: rgba(255, 255, 255, 0.7);
-			z-index: 1;
-		}
-
-		.dark .background-pattern {
-			opacity: 0.4;
-			filter: none;
-			backdrop-filter: none;
+			background-image: url('/background/polygon-luminary.svg');
 			background-size: cover;
-		}
-
-		.dark .background-pattern::before {
-			display: none;
+			background-position: center;
+			background-repeat: no-repeat;
+			filter: blur(2px);
+			backdrop-filter: brightness(0.8) saturate(1.2);
 		}
 	</style>
 </html>
